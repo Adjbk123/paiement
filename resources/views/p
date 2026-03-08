@@ -1,0 +1,657 @@
+<body>
+
+
+
+    <!-- Navbar Start -->
+    <div class="container-fluid fixed-top px-0 wow fadeIn" data-wow-delay="0.1s">
+
+
+        <nav class="navbar navbar-expand-lg navbar-light py-lg-0 px-lg-5 wow fadeIn" data-wow-delay="0.1s">
+            <a href="index.html" class="navbar-brand ms-4 ms-lg-0">
+                <h1 class="display-5 text-primary m-0">Sté MAFLYT Sarl</h1>
+            </a>
+            <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse"
+                data-bs-target="#navbarCollapse">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav ms-auto p-4 p-lg-0">
+                    <a href="index.html" class="nav-item nav-link active">Accueil</a>
+                    <a href="about.html" class="nav-item nav-link">A-Propos</a>
+                    <a href="service.html" class="nav-item nav-link">Services</a>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Options</a>
+                        <div class="dropdown-menu border-light m-0">
+                            <a href="project.html" class="dropdown-item">Recyclage</a>
+                            <a href="feature.html" class="dropdown-item">Formation Informatique</a>
+                            <a href="team.html" class="dropdown-item">Formation Suivie d'achat de PC</a>
+
+                        </div>
+                    </div>
+                    <a href="contact.html" class="nav-item nav-link">Contact</a>
+                </div>
+                <div class="d-none d-lg-flex ms-2">
+                    <a class="btn btn-light btn-sm-square rounded-circle ms-3" href="">
+                        <small class="fab fa-facebook-f text-success"></small>
+                    </a>
+                    <a class="btn btn-light btn-sm-square rounded-circle ms-3" href="">
+                        <small class="fab fa-whatsapp text-success"></small>
+                    </a>
+                    <a class="btn btn-light btn-sm-square rounded-circle ms-3" href="">
+                        <small class=" fab fa-telegram text-success "></small>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- Navbar End -->
+
+
+    <!-- Carousel Start -->
+    <div class="container-fluid p-0 mb-2 wow fadeIn" data-wow-delay="0.1s">
+        <div id="header-carousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img class="w-100" src="{{ asset('assets/img/carousel-1.jpg') }}" alt="Image">
+                    <div class="carousel-caption">
+                        <div class="container">
+                            <div class="row justify-content-start">
+                                <div class="col-lg-8">
+                                    <p
+                                        class="d-inline-block border border-primary rounded text-success fw-semi-bold py-1 px-3 animated slideInDown">
+                                        Bienvenu à MAFLYT Sarl</p>
+                                    <h1 class=" text-primary display-1 mb-4 animated slideInDown">Familiariser Vous Avec
+                                        l'Outils Informatique.</h1>
+                                    <a href=""
+                                        class="btn btn-success py-3 px-5 animated slideInDown">S'inscrire</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <img class="w-100" src="{{ asset('assets/img/carousel-2.jpg') }}" alt="Image">
+                    <div class="carousel-caption">
+                        <div class="container">
+                            <div class="row justify-content-start">
+                                <div class="col-lg-7">
+                                    <p
+                                        class="d-inline-block border border-primary rounded text-success fw-semi-bold py-1 px-3 animated slideInDown">
+                                        Bienvenu à MAFLYT Sarl</p>
+                                    <h1 class="display-1 text-primary  mb-4 animated slideInDown">Maitrisez les Notions
+                                        de Base sur Office.</h1>
+                                    <a href=""
+                                        class="btn btn-success  py-3 px-5 animated slideInDown">S'inscrire</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#header-carousel"
+                data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next " type="button" data-bs-target="#header-carousel"
+                data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+    </div>
+    <!-- Carousel End -->
+
+
+    <!-- About Start -->
+    <div class="container-xxl py-5">
+        <div class="container">
+            <div class="row g-4 align-items-end mb-4">
+                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <img class=" rounded" src="{{ asset('assets/img/service-2.jpg') }}">
+                </div>
+                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.3s">
+                    <p class="d-inline-block border rounded text-success fw-semi-bold py-1 px-3">A-propos</p>
+                    <h1 class="display-5 mb-4 text-primary">A-Propos De Nous</h1>
+                    <p class="mb-4">Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit. Aliqu diam amet diam
+                        et eos. Clita erat ipsum et lorem et sit, sed stet lorem sit clita duo justo magna dolore erat
+                        amet</p>
+                    <div class="border rounded p-4">
+                        <nav>
+                            <div class="nav nav-tabs mb-3" id="nav-tab" role="tablist">
+                                <button class="nav-link fw-semi-bold active" id="nav-story-tab" data-bs-toggle="tab"
+                                    data-bs-target="#nav-story" type="button" role="tab"
+                                    aria-controls="nav-story" aria-selected="true"> Histoire </button>
+                                <button class="nav-link fw-semi-bold active" id="nav-story-tab" data-bs-toggle="tab"
+                                    data-bs-target="#nav-story" type="button" role="tab"
+                                    aria-controls="nav-story" aria-selected="true"> Objectifs </button>
+                                <button class="nav-link fw-semi-bold" id="nav-mission-tab" data-bs-toggle="tab"
+                                    data-bs-target="#nav-mission" type="button" role="tab"
+                                    aria-controls="nav-mission" aria-selected="false">Mission</button>
+                                <button class="nav-link fw-semi-bold" id="nav-vision-tab" data-bs-toggle="tab"
+                                    data-bs-target="#nav-vision" type="button" role="tab"
+                                    aria-controls="nav-vision" aria-selected="false">Vision</button>
+                            </div>
+                        </nav>
+                        <div class="tab-content" id="nav-tabContent">
+                            <div class="tab-pane fade show active" id="nav-story" role="tabpanel"
+                                aria-labelledby="nav-story-tab">
+                                <p>Tempor erat elitr rebum at clita. Diam dolor diam ipsum et tempor sit. Aliqu diam
+                                    amet diam et eos labore.</p>
+                                <p class="mb-0">Diam dolor diam ipsum et tempor sit. Aliqu diam amet diam et eos
+                                    labore. Clita erat ipsum et lorem et sit</p>
+                            </div>
+                            <div class="tab-pane fade" id="nav-mission" role="tabpanel"
+                                aria-labelledby="nav-mission-tab">
+                                <p>Tempor erat elitr rebum at clita. Diam dolor diam ipsum et tempor sit. Aliqu diam
+                                    amet diam et eos labore.</p>
+                                <p class="mb-0">Diam dolor diam ipsum et tempor sit. Aliqu diam amet diam et eos
+                                    labore. Clita erat ipsum et lorem et sit</p>
+                            </div>
+                            <div class="tab-pane fade" id="nav-vision" role="tabpanel"
+                                aria-labelledby="nav-vision-tab">
+                                <p>Tempor erat elitr rebum at clita. Diam dolor diam ipsum et tempor sit. Aliqu diam
+                                    amet diam et eos labore.</p>
+                                <p class="mb-0">Diam dolor diam ipsum et tempor sit. Aliqu diam amet diam et eos
+                                    labore. Clita erat ipsum et lorem et sit</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- About End -->
+
+
+
+
+
+
+
+
+    <!-- Service Start -->
+    <div class="container-xxl service py-5">
+        <div class="container">
+            <div class="text-center mx-auto wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
+                <p class="d-inline-block border rounded text-success fw-semi-bold py-1 px-3">Les Options de Formation
+                </p>
+                <h1 class="display-5 mb-5 text-primary">Nos Options de Formation Disponible</h1>
+            </div>
+            <div class="row g-4 wow fadeInUp" data-wow-delay="0.3s">
+                <div class="col-lg-4">
+                    <div class="nav nav-pills d-flex justify-content-between w-100 h-100 me-4">
+                        <button class="nav-link w-100 d-flex align-items-center text-start border p-4 mb-4 active"
+                            data-bs-toggle="pill" data-bs-target="#tab-pane-1" type="button">
+                            <h5 class="m-0"><i class="fa fa-bars text-primary me-3"></i>Récyclage</h5>
+                        </button>
+                        <button class="nav-link w-100 d-flex align-items-center text-start border p-4 mb-4"
+                            data-bs-toggle="pill" data-bs-target="#tab-pane-2" type="button">
+                            <h5 class="m-0"><i class="fa fa-bars text-primary me-3"></i> Simple formation </h5>
+                        </button>
+                        <button class="nav-link w-100 d-flex align-items-center text-start border p-4 mb-4"
+                            data-bs-toggle="pill" data-bs-target="#tab-pane-3" type="button">
+                            <h5 class="m-0"><i class="fa fa-bars text-primary me-3"></i> Formation suivie d'achat
+                                de PC </h5>
+                        </button>
+
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <div class="tab-content w-100">
+                        <div class="tab-pane fade show active" id="tab-pane-1">
+                            <div class="row g-4">
+                                <div class="col-md-6" style="min-height: 350px;">
+                                    <div class="position-relative h-100">
+                                        <img class="position-absolute rounded w-100 h-100" src="{{ asset('assets/img/service-1.jpg') }}"
+                                            style="object-fit: cover;" alt="">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h3 class="mb-4 text-primary">Récyclage : Rappel des bases en informatique.</h3>
+                                    <p class="mb-4">Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit.
+                                        Aliqu diam amet diam et eos. Clita erat ipsum et lorem et sit, sed stet lorem
+                                        sit clita duo justo erat amet.</p>
+                                    <p><i class="fa fa-check text-primary me-3"></i>Secured Loans</p>
+                                    <p><i class="fa fa-check text-primary me-3"></i>Credit Facilities</p>
+                                    <p><i class="fa fa-check text-primary me-3"></i>Cash Advanced</p>
+                                    <a href="" class="btn btn-success py-3 px-5 mt-3">En Savoir Plus</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="tab-pane-2">
+                            <div class="row g-4">
+                                <div class="col-md-6" style="min-height: 350px;">
+                                    <div class="position-relative h-100">
+                                        <img class="position-absolute rounded w-100 h-100"
+                                            src="{{ asset('assets/img/service-2.jpg') }}" style="object-fit: cover;"
+                                            alt="">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h3 class="mb-4 text-primary">Simple formation : Formation de base en informatique.
+                                    </h3>
+                                    <p class="mb-4">Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit.
+                                        Aliqu diam amet diam et eos. Clita erat ipsum et lorem et sit, sed stet lorem
+                                        sit clita duo justo erat amet.</p>
+                                    <p><i class="fa fa-check text-primary me-3"></i>Secured Loans</p>
+                                    <p><i class="fa fa-check text-primary me-3"></i>Credit Facilities</p>
+                                    <p><i class="fa fa-check text-primary me-3"></i>Cash Advanced</p>
+                                    <a href="" class="btn btn-success py-3 px-5 mt-3">En Savoir Plus</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="tab-pane-3">
+                            <div class="row g-4">
+                                <div class="col-md-6" style="min-height: 350px;">
+                                    <div class="position-relative h-100">
+                                        <img class="position-absolute rounded w-100 h-100"
+                                            src="{{ asset('assets/img/service-3.jpg') }}" style="object-fit: cover;"
+                                            alt="">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h3 class="mb-4 text-primary"> Formation suivie d'achat de PC : Formation incluant
+                                        un kit informatique.</h3>
+                                    <p class="mb-4">Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit.
+                                        Aliqu diam amet diam et eos. Clita erat ipsum et lorem et sit, sed stet lorem
+                                        sit clita duo justo erat amet.</p>
+                                    <p><i class="fa fa-check text-primary me-3"></i>Secured Loans</p>
+                                    <p><i class="fa fa-check text-primary me-3"></i>Credit Facilities</p>
+                                    <p><i class="fa fa-check text-primary me-3"></i>Cash Advanced</p>
+                                    <a href="" class="btn btn-success py-3 px-5 mt-3">En Savoir Plus</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="tab-pane-4">
+                            <div class="row g-4">
+                                <div class="col-md-6" style="min-height: 350px;">
+                                    <div class="position-relative h-100">
+                                        <img class="position-absolute rounded w-100 h-100" src="img/service-4.jpg"
+                                            style="object-fit: cover;" alt="">
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Service End -->
+
+
+    <!-- Callback Start -->
+    <div class="container-fluid callback my-5 pt-5">
+        <div class="container pt-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-7">
+                    <div class="bg-white border rounded p-4 p-sm-5 wow fadeInUp" data-wow-delay="0.5s">
+                        <div class="text-center mx-auto wow fadeInUp" data-wow-delay="0.1s"
+                            style="max-width: 600px;">
+                            <p class="d-inline-block border rounded text-success fw-semi-bold py-1 px-3">Contacter-Nous
+                            </p>
+                            <h1 class="display-5 mb-5 text-primary">Demander à etre rappelé</h1>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="name"
+                                        placeholder="Your Name">
+                                    <label for="name">Votre Nom</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-floating">
+                                    <input type="email" class="form-control" id="mail"
+                                        placeholder="Your Email">
+                                    <label for="mail">votre Email</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="mobile"
+                                        placeholder="Your Mobile">
+                                    <label for="mobile">Numero de telephone</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="subject" placeholder="Subject">
+                                    <label for="subject">Subject</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <textarea class="form-control" placeholder="Leave a message here" id="message" style="height: 100px"></textarea>
+                                    <label for="message">Message</label>
+                                </div>
+                            </div>
+                            <div class="col-12 text-center">
+                                <button class="btn btn-primary w-100 py-3" type="submit">Envoyer</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Callback End -->
+
+
+
+
+
+
+
+    <div id="inscription" class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm rounded-4 p-4 p-sm-5 wow fadeInUp" data-wow-delay="0.3s">
+                <h2 class="text-center text-primary fw-bold mb-4">Inscription & Paiement</h2>
+
+                @if(session('error'))
+                    <div class="alert alert-danger">{{ session('error') }}</div>
+                @endif
+
+                <form action="{{ route('paiement.process') }}" method="POST">
+                    @csrf
+                    <div class="row g-3">
+
+                        {{-- Nom / Prénoms --}}
+                        <div class="col-md-6">
+                            <label class="form-label">Nom</label>
+                            <input type="text" name="nom" class="form-control" value="{{ old('nom') }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Prénoms</label>
+                            <input type="text" name="prenoms" class="form-control" value="{{ old('prenoms') }}" required>
+                        </div>
+
+                        {{-- Email / Téléphone --}}
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" value="{{ old('email') }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Téléphone</label>
+                            <input type="text" name="phone" class="form-control" value="{{ old('phone') }}" required>
+                        </div>
+
+                        {{-- Option --}}
+                        <div class="col-md-6">
+                            <label class="form-label">Option</label>
+                            <select name="option_id" class="form-select" required>
+                                <option value="">-- Sélectionner --</option>
+                                @foreach($options as $option)
+                                    <option value="{{ $option->id }}">
+                                        {{ $option->nom }} - {{ number_format($option->option_montant,0,',',' ') }} XOF
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- Montant --}}
+                        <div class="col-md-6">
+                            <label class="form-label">Montant (XOF)</label>
+                            <input type="number" name="montant" class="form-control fw-bold text-success" value="{{ old('montant') }}" required min="1">
+                        </div>
+
+                        {{-- Enseignement --}}
+                        <div class="col-md-6">
+                            <label class="form-label">Enseignement</label>
+                            <select name="enseignement_id" id="enseignement_id" class="form-select" required>
+                                <option value="">-- Sélectionner --</option>
+                                @foreach($enseignements as $enseignement)
+                                    <option value="{{ $enseignement->id }}">{{ $enseignement->nom }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- Autre enseignement (champ texte) --}}
+                        <div class="col-md-6 d-none" id="autre_div">
+                            <label class="form-label">Précisez l'enseignement</label>
+                            <input type="text" name="autre_enseignement" class="form-control" placeholder="Entrez le type d’enseignement">
+                        </div>
+
+                        {{-- Département / Circonscription / District / Formation --}}
+                        <div class="col-md-6" id="departement_div">
+                            <label class="form-label">Département</label>
+                            <select name="departement_id" id="departement_id" class="form-select">
+                                <option value="">-- Sélectionner --</option>
+                                @foreach($departements as $d)
+                                    <option value="{{ $d->id }}">{{ $d->nom }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6" id="circonscription_div">
+                            <label class="form-label">Circonscription</label>
+                            <select name="circonscription_id" id="circonscription_id" class="form-select">
+                                <option value="">-- Sélectionner --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6" id="district_div">
+                            <label class="form-label">Département de formation</label>
+                            <select name="district_id" id="district_id" class="form-select">
+                                <option value="">-- Sélectionner --</option>
+                                @foreach($districts as $dist)
+                                    <option value="{{ $dist->id }}">{{ $dist->nom }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6" id="formation_div">
+                            <label class="form-label">Circonscription de formation</label>
+                            <select name="formation_id" id="formation_id" class="form-select">
+                                <option value="">-- Sélectionner --</option>
+                            </select>
+                        </div>
+
+                        {{-- Province / Région --}}
+                        <div class="col-md-6 d-none" id="province_div">
+                            <label class="form-label">Province</label>
+                            <select name="province_id" id="province_id" class="form-select">
+                                <option value="">-- Sélectionner --</option>
+                                @foreach($provinces as $province)
+                                    <option value="{{ $province->id }}">{{ $province->nom }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6 d-none" id="region_div">
+                            <label class="form-label">Région</label>
+                            <select name="region_id" id="region_id" class="form-select">
+                                <option value="">-- Sélectionner --</option>
+                            </select>
+                        </div>
+
+                        {{-- Submit --}}
+                        <div class="col-12 text-center mt-3">
+                            <button type="submit" class="btn btn-success fw-bold py-2 px-4">
+                                💳 S'inscrire et Payer
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Script pour gérer l’affichage dynamique --}}
+@section('script')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const departementDiv = document.getElementById('departement_div');
+    const circonscriptionDiv = document.getElementById('circonscription_div');
+    const districtDiv = document.getElementById('district_div');
+    const formationDiv = document.getElementById('formation_div');
+
+    const provinceDiv = document.getElementById('province_div');
+    const regionDiv = document.getElementById('region_div');
+
+    const autreDiv = document.getElementById('autre_div');
+    const enseignementSelect = document.getElementById('enseignement_id');
+
+    const circonscriptionSelect = document.getElementById('circonscription_id');
+    const formationSelect = document.getElementById('formation_id');
+    const districtSelect = document.getElementById('district_id');
+    const regionSelect = document.getElementById('region_id');
+
+    // Gestion du changement d'enseignement
+    enseignementSelect.addEventListener('change', function() {
+        const selectedText = this.options[this.selectedIndex].text.toLowerCase();
+
+        // Autre
+        if(selectedText === 'autre') {
+            autreDiv.classList.remove('d-none');
+        } else {
+            autreDiv.classList.add('d-none');
+        }
+
+        // Maternel / Primaire
+        if(selectedText === 'maternel' || selectedText === 'primaire') {
+            departementDiv.classList.remove('d-none');
+            circonscriptionDiv.classList.remove('d-none');
+            districtDiv.classList.remove('d-none');
+            formationDiv.classList.remove('d-none');
+
+            provinceDiv.classList.add('d-none');
+            regionDiv.classList.add('d-none');
+        }
+        // Secondaire / Autre
+        else if(selectedText === 'secondaire' || selectedText === 'autre') {
+            departementDiv.classList.add('d-none');
+            circonscriptionDiv.classList.add('d-none');
+            districtDiv.classList.add('d-none');
+            formationDiv.classList.add('d-none');
+
+            provinceDiv.classList.remove('d-none');
+            regionDiv.classList.remove('d-none');
+        }
+    });
+
+    // Chargement dynamique des circonscriptions
+    document.getElementById('departement_id')?.addEventListener('change', function() {
+        circonscriptionSelect.innerHTML = '<option>Chargement...</option>';
+        fetch(`/circonscriptions/by-departement/${this.value}`)
+            .then(res => res.json())
+            .then(data => {
+                circonscriptionSelect.innerHTML = '<option value="">-- Sélectionner --</option>';
+                data.forEach(d => circonscriptionSelect.innerHTML += `<option value="${d.id}">${d.nom}</option>`);
+            });
+    });
+
+    // Chargement dynamique des formations
+    districtSelect?.addEventListener('change', function() {
+        formationSelect.innerHTML = '<option>Chargement...</option>';
+        fetch(`/formations/by-district/${this.value}`)
+            .then(res => res.json())
+            .then(data => {
+                formationSelect.innerHTML = '<option value="">-- Sélectionner --</option>';
+                data.forEach(f => formationSelect.innerHTML += `<option value="${f.id}">${f.nom}</option>`);
+            });
+    });
+
+    // Chargement dynamique des régions si province
+    document.getElementById('province_id')?.addEventListener('change', function() {
+        regionSelect.innerHTML = '<option>Chargement...</option>';
+        fetch(`/regions/by-province/${this.value}`)
+            .then(res => res.json())
+            .then(data => {
+                regionSelect.innerHTML = '<option value="">-- Sélectionner --</option>';
+                data.forEach(r => regionSelect.innerHTML += `<option value="${r.id}">${r.nom}</option>`);
+            });
+    });
+});
+</script>
+@endsection
+
+
+
+
+
+
+
+
+
+    <!-- Footer Start -->
+    <div class="container-fluid bg-dark text-light footer mt-5 py-5 wow fadeIn" data-wow-delay="0.1s">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-white mb-4">Notre Entreprise</h4>
+                    <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>MISSERETE DOTOGOTO</p>
+                    <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+229 0147073737</p>
+                    <p class="mb-2"><i class="fa fa-envelope me-3"></i>maflyt24@gmail.com</p>
+                    <div class="d-flex pt-2">
+                        <a class="btn btn-square btn-outline-light rounded-circle me-2" href=""><i
+                                class="fab fa-twitter"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-2" href=""><i
+                                class="fab fa-facebook-f"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-2" href=""><i
+                                class="fab fa-youtube"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-2" href=""><i
+                                class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-white mb-4">Services</h4>
+                    <a class="btn btn-link" href="">Recyclage</a>
+                    <a class="btn btn-link" href="">Simple formation </a>
+                    <a class="btn btn-link" href="">Formations suivie d'achat de PC</a>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-white mb-4">Liens</h4>
+                    <a class="btn btn-link" href="">Accueil</a>
+                    <a class="btn btn-link" href="">A-Props</a>
+                    <a class="btn btn-link" href="">Services</a>
+                    <a class="btn btn-link" href="">Contact</a>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-white mb-4">Newsletter</h4>
+                    <p>Dolor amet sit justo amet elitr clita ipsum elitr est.</p>
+                    <div class="position-relative w-100">
+                        <input class="form-control bg-white border-0 w-100 py-3 ps-4 pe-5" type="text"
+                            placeholder="Your email">
+                        <button type="button"
+                            class="btn btn-primary py-2 position-absolute top-0 end-0 mt-2 me-2">SignUp</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+
+
+    <!-- Copyright Start -->
+    <div class="container-fluid copyright py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                    &copy; <a class="border-bottom" href="#">Sté Maflyt Sarl</a>, All Right Reserved.
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- Copyright End -->
+
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top"><i
+            class="bi bi-arrow-up"></i></a>
+
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('assets/lib/wow/wow.min.js') }}"></script>
+    <script src="{{ asset('assets/lib/easing/easing.min.js') }}"></script>
+    <script src="{{ asset('assets/lib/waypoints/waypoints.min.js') }}"></script>
+    <script src="{{ asset('assets/lib/owlcarousel/owl.carousel.min.js') }}"></script>
+    <script src="{{ asset('assets/lib/counterup/counterup.min.js') }}"></script>
+
+    <!-- Template Javascript -->
+    <script src="{{ asset('js/main.js') }}"></script>
+</body>

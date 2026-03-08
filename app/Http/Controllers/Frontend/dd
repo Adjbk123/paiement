@@ -1,0 +1,85 @@
+ public function success(Request $request)
+    {
+        $reference = $request->query('ref');
+        if (!$reference) abort(404);
+
+        $paiement = PaiementInscription::where('reference', $reference)->firstOrFail();
+
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . config('services.fedapay.secret'),
+                'Content-Type' => 'application/json',
+            ])->get("https://api.fedapay.com/v1/transactions/{$paiement->transaction_id}");
+
+            if ($response->successful()) {
+                $transaction = $response->json()['v1/transaction'];
+
+                if ($transaction['status'] === 'approved') {
+                    $paiement->status = 'approved';
+                } elseif ($transaction['status'] === 'declined') $paiement->status = 'failed';
+
+                $paiement->save();
+            }
+        } catch (\Exception $e) {
+            Log::error('Erreur vérification FedaPay', ['message' => $e->getMessage()]);
+        }
+        $parametres = Parametre::first();
+        return view('frontend.pages.paiement-success', [
+            'paiement' => $paiement,
+            'parametres' => $parametres,
+        ]);
+    }
+    public function status(Request $request)
+    {
+        // Récupère la référence dans l'URL
+        $reference = $request->query('ref');
+        if (!$reference) {
+            abort(404, "Référence de paiement manquante.");
+        }
+
+        // Cherche le paiement correspondant
+        $paiement = PaiementInscription::where('reference', $reference)->firstOrFail();
+
+        // Récupère les paramètres de la société
+        $parametres = Parametre::first();
+
+        // Vérifie le statut du paiement auprès de FedaPay
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . config('services.fedapay.secret'),
+                'Content-Type' => 'application/json',
+            ])->get("https://api.fedapay.com/v1/transactions/{$paiement->transaction_id}");
+
+            if ($response->successful()) {
+                $transaction = $response->json()['v1/transaction'];
+
+                if ($transaction['status'] === 'approved') {
+                    $paiement->status = 'approved';
+                } elseif ($transaction['status'] === 'declined') {
+                    $paiement->status = 'failed';
+                }
+
+                $paiement->save();
+            }
+        } catch (\Exception $e) {
+            Log::error('Erreur vérification FedaPay', ['message' => $e->getMessage()]);
+        }
+
+        // Affiche la vue avec le paiement et les paramètres
+        return view('frontend.pages.paiement-recu', [
+            'paiement' => $paiement,
+            'parametres' => $parametres,
+        ]);
+    }
+    public function download(PaiementInscription $paiement)
+{
+    $parametres = Parametre::first();
+
+    $pdf = Pdf::loadView('frontend.pages.paiement-recu', [
+        'paiement' => $paiement,
+        'parametres' => $parametres
+    ])->setPaper('A4', 'portrait');
+
+    $fileName = 'recu_paiement_' . $paiement->reference . '.pdf';
+    return $pdf->download($fileName);
+}
