@@ -12,8 +12,14 @@ class PaiementTranche extends Model
     protected $fillable = [
         'paiement_inscription_id',
         'montant_tranche',
+        'reference',
         'transaction_id',
+        'payment_url',
         'status',
+    ];
+
+    protected $casts = [
+        'montant_tranche' => 'float',
     ];
 
     // ================= Relations =================

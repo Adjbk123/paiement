@@ -30,21 +30,25 @@ class OptionController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nom' => 'required|string|max:50|unique:options,nom',
-            'description' => 'nullable|string',
-            'option_montant' => 'required|numeric|min:0',
+            'nom'              => 'required|string|max:50|unique:options,nom',
+            'description'      => 'nullable|string',
+            'option_montant'   => 'required|numeric|min:0',
+            'montant_minimum'  => 'nullable|numeric|min:0|lt:option_montant',
         ], [
-            'nom.required' => 'Le nom de l’option est obligatoire.',
-            'nom.unique' => 'Cette option existe déjà.',
-            'option_montant.required' => 'Le montant est obligatoire.',
-            'option_montant.numeric' => 'Le montant doit être un nombre.',
+            'nom.required'             => 'Le nom de l\'option est obligatoire.',
+            'nom.unique'               => 'Cette option existe déjà.',
+            'option_montant.required'  => 'Le montant total est obligatoire.',
+            'option_montant.numeric'   => 'Le montant doit être un nombre.',
+            'montant_minimum.numeric'  => 'Le montant minimum doit être un nombre.',
+            'montant_minimum.lt'       => 'Le montant minimum doit être inférieur au montant total.',
         ]);
 
         Option::create([
-            'nom' => $request->nom,
-            'description' => $request->description,
-            'option_montant' => $request->option_montant,
-            'statut' => 'visible',
+            'nom'             => $request->nom,
+            'description'     => $request->description,
+            'option_montant'  => $request->option_montant,
+            'montant_minimum' => $request->filled('montant_minimum') ? $request->montant_minimum : null,
+            'statut'          => 'visible',
         ]);
 
         return redirect()->route('employer.gestoptions.options.index')
@@ -65,20 +69,24 @@ class OptionController extends Controller
     public function update(Request $request, Option $option)
     {
         $request->validate([
-            'nom' => 'required|string|max:50|unique:options,nom,' . $option->id,
-            'description' => 'nullable|string',
-            'option_montant' => 'required|numeric|min:0',
+            'nom'             => 'required|string|max:50|unique:options,nom,' . $option->id,
+            'description'     => 'nullable|string',
+            'option_montant'  => 'required|numeric|min:0',
+            'montant_minimum' => 'nullable|numeric|min:0|lt:option_montant',
         ], [
-            'nom.required' => 'Le nom de l’option est obligatoire.',
-            'nom.unique' => 'Une autre option porte déjà ce nom.',
-            'option_montant.required' => 'Le montant est obligatoire.',
-            'option_montant.numeric' => 'Le montant doit être un nombre.',
+            'nom.required'             => 'Le nom de l\'option est obligatoire.',
+            'nom.unique'               => 'Une autre option porte déjà ce nom.',
+            'option_montant.required'  => 'Le montant total est obligatoire.',
+            'option_montant.numeric'   => 'Le montant doit être un nombre.',
+            'montant_minimum.numeric'  => 'Le montant minimum doit être un nombre.',
+            'montant_minimum.lt'       => 'Le montant minimum doit être inférieur au montant total.',
         ]);
 
         $option->update([
-            'nom' => $request->nom,
-            'description' => $request->description,
-            'option_montant' => $request->option_montant,
+            'nom'             => $request->nom,
+            'description'     => $request->description,
+            'option_montant'  => $request->option_montant,
+            'montant_minimum' => $request->filled('montant_minimum') ? $request->montant_minimum : null,
         ]);
 
         return redirect()->route('employer.gestoptions.options.index')

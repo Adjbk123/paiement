@@ -21,8 +21,9 @@
                     <thead class="table-light">
                         <tr>
                             <th>Nom</th>
-                            <th>Montant (FCFA)</th>
                             <th>Description</th>
+                            <th>Montant (FCFA)</th>
+                            <th>Montant minimum (FCFA)</th>
                             <th>Statut</th>
                             <th>Actions</th>
                         </tr>
@@ -31,8 +32,15 @@
                         @forelse($options as $option)
                         <tr>
                             <td>{{ $option->nom }}</td>
-                           <td>{!! html_entity_decode($option->description) !!}</td>
-                            <td>{{ number_format($option->option_montant, 0, ',', ' ') }} FCFA</td>
+                            <td>{!! html_entity_decode($option->description) !!}</td>
+                            <td class="fw-semibold">{{ number_format($option->option_montant, 0, ',', ' ') }} FCFA</td>
+                            <td>
+                                @if($option->montant_minimum)
+                                    <span class="badge bg-info text-dark">{{ number_format($option->montant_minimum, 0, ',', ' ') }} FCFA</span>
+                                @else
+                                    <span class="text-muted small">—</span>
+                                @endif
+                            </td>
                             <td>
                                 <div class="form-check form-switch">
                                     <input class="form-check-input toggleStatut" type="checkbox"
@@ -62,7 +70,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" class="text-center text-muted">Aucune option trouvée.</td>
+                            <td colspan="6" class="text-center text-muted">Aucune option trouvée.</td>
                         </tr>
                         @endforelse
                     </tbody>

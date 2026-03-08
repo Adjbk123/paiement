@@ -2,12 +2,19 @@
 @section('title', 'Nos Services')
 @section('content')
 
+@include('layouts.inc.frontend.breadcrumb', [
+    'pageTitle'   => 'Nos Services',
+    'breadcrumbs' => [
+        ['label' => 'Services', 'url' => null],
+    ]
+])
+
 <!-- Services Modernes Start -->
 <div class="container-xxl py-5">
     <div class="container">
 
         <div class="text-center mx-auto wow fadeInUp" data-wow-delay="0.1s" style="max-width: 700px;">
-            <p class="d-inline-block border rounded text-primary fw-semi-bold py-1 px-3">Our Services</p>
+            <p class="d-inline-block border rounded text-primary fw-semi-bold py-1 px-3">Nos Services</p>
             <h1 class="display-5 mb-5">Découvrez Nos Services Professionnels</h1>
         </div>
 
@@ -64,7 +71,7 @@
                                             {{-- Read More --}}
                                             @if($service->link)
                                                 <a href="{{ $service->link }}" class="btn btn-primary mt-auto" target="_blank">
-                                                    Read More <i class="fa fa-arrow-right ms-2"></i>
+                                                    En savoir plus <i class="fa fa-arrow-right ms-2"></i>
                                                 </a>
                                             @endif
                                         </div>

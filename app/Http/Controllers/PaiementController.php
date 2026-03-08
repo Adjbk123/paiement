@@ -53,25 +53,48 @@ class PaiementController extends Controller
             $query->whereDate('created_at', $request->date_paiement);
         }
 
+        if ($request->status) {
+            $query->where('status', $request->status);
+        }
+
         if ($request->search) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('nom','like',"%{$search}%")
                   ->orWhere('prenoms','like',"%{$search}%")
                   ->orWhere('email','like',"%{$search}%")
-                  ->orWhere('phone','like',"%{$search}%");
+                  ->orWhere('phone','like',"%{$search}%")
+                  ->orWhere('token','like',"%{$search}%");
             });
         }
 
         $inscriptions = $query->latest()->paginate(15);
 
+        $stats = PaiementInscription::selectRaw("status, count(*) as total")
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->toArray();
+
+        $statsEnseignement = PaiementInscription::selectRaw("enseignement_id, count(*) as total")
+            ->with('enseignement')
+            ->groupBy('enseignement_id')
+            ->get()
+            ->map(fn($r) => [
+                'nom'   => $r->enseignement?->nom ?? 'Autre',
+                'total' => $r->total,
+            ])
+            ->sortByDesc('total')
+            ->values();
+
         return view('inscriptions.index', [
-            'inscriptions' => $inscriptions,
-            'enseignements' => Enseignement::orderBy('nom')->get(),
-            'circonscriptions' => Circonscription::orderBy('nom')->get(),
-            'formations' => Formation::orderBy('nom')->get(),
-            'regions' => Region::orderBy('nom')->get(),
-            'options' => Option::orderBy('nom')->get(),
+            'inscriptions'      => $inscriptions,
+            'stats'             => $stats,
+            'statsEnseignement' => $statsEnseignement,
+            'enseignements'   => Enseignement::orderBy('nom')->get(),
+            'circonscriptions'=> Circonscription::orderBy('nom')->get(),
+            'formations'      => Formation::orderBy('nom')->get(),
+            'regions'         => Region::orderBy('nom')->get(),
+            'options'         => Option::orderBy('nom')->get(),
         ]);
     }
 
@@ -79,7 +102,7 @@ class PaiementController extends Controller
     public function show($id)
     {
         $inscription = PaiementInscription::with([
-            'enseignement','formation','circonscription','departement','district','province','region'
+            'enseignement','formation','circonscription','departement','district','province','region','option','tranches'
         ])->findOrFail($id);
 
         return view('inscriptions.show', compact('inscription'));

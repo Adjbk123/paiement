@@ -62,6 +62,16 @@ Route::get('/paiement/failed', function () {
     return view('frontend.pages.paiement-failed');
 })->name('paiement.failed');
 
+// Paiement flexible — continuer avec son code
+Route::get('/paiement/continuer', [PaiementInscriptionController::class, 'showContinuerForm'])
+    ->name('paiement.continuer');
+Route::post('/paiement/continuer/recherche', [PaiementInscriptionController::class, 'rechercherDossier'])
+    ->name('paiement.continuer.recherche');
+Route::get('/paiement/continuer/{token}', [PaiementInscriptionController::class, 'showDossier'])
+    ->name('paiement.continuer.dossier');
+Route::post('/paiement/continuer/{token}/payer', [PaiementInscriptionController::class, 'processContinuer'])
+    ->name('paiement.continuer.process');
+
 
 
 Route::get('/paiement/callback', [PaiementInscriptionController::class, 'callback'])
@@ -70,6 +80,12 @@ Route::get('/paiement/callback', [PaiementInscriptionController::class, 'callbac
 
 Route::get('/paiement/{paiement}/download', [PaiementInscriptionController::class, 'download'])
     ->name('paiement.download');
+
+Route::get('/paiement/{paiement}/download-dossier', [PaiementInscriptionController::class, 'downloadDossier'])
+    ->name('paiement.download.dossier');
+
+Route::get('/paiement/tranche/{tranche}/download', [PaiementInscriptionController::class, 'downloadTranche'])
+    ->name('paiement.tranche.download');
 
 Route::get('/circonscriptions/by-departement/{id}', [App\Http\Controllers\PaiementInscriptionController::class, 'getCirconscriptions']);
 Route::get('/formations/by-district/{id}', [App\Http\Controllers\PaiementInscriptionController::class, 'getFormations']);

@@ -32,6 +32,7 @@ class PaiementInscription extends Model
         'status',
         'recu_envoye',
         'reference',
+        'token',
         'transaction_id',
         'payment_url',
         'description',

@@ -2,6 +2,13 @@
 @section('title','À propos de nous')
 @section('content')
 
+@include('layouts.inc.frontend.breadcrumb', [
+    'pageTitle'   => 'À Propos de Nous',
+    'breadcrumbs' => [
+        ['label' => 'À Propos', 'url' => null],
+    ]
+])
+
 <!-- About Start -->
 <div class="container-xxl py-5">
     <div class="container">
@@ -39,9 +46,9 @@
                         }
                         if(empty($tabs) || !is_array($tabs)){
                             $tabs = [
-                                'Histoire' => 'Notre entreprise a été créée avec la vision d’apporter des solutions professionnelles et durables.',
+                                'Histoire' => 'Notre entreprise a été créée avec la vision d\'apporter des solutions professionnelles et durables.',
                                 'Mission' => 'Offrir des services de qualité supérieure qui répondent aux attentes de nos clients.',
-                                'Vision' => 'Devenir un leader reconnu dans notre domaine d’activité.'
+                                'Vision' => 'Devenir un leader reconnu dans notre domaine d\'activité.'
                             ];
                         }
                     @endphp

@@ -11,6 +11,7 @@ use App\Models\Formation;
 use App\Models\Galerie;
 use App\Models\Option;
 use App\Models\PaiementInscription;
+use App\Models\PaiementTranche;
 use App\Models\Province;
 use App\Models\Region;
 use App\Models\Parametre;
@@ -19,38 +20,39 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class PaiementInscriptionController extends Controller
 {
-    // ================== FORMULAIRE ==================
+    // ====================================================================
+    //  FORMULAIRE D'INSCRIPTION
+    // ====================================================================
+
     public function showForm(Request $request)
     {
-        $options = Option::where('statut', 'visible')->get();
-        $departements = Departement::all();
+        $options        = Option::where('statut', 'visible')->get();
+        $departements   = Departement::all();
         $circonscriptions = Circonscription::all();
-        $districts = District::all();
-        $formations = Formation::all();
-        $enseignements = Enseignement::all();
-        $provinces = Province::all();
-        $regions = Region::all();
-        $galeries = Galerie::where('statut', 0)->get();
+        $districts      = District::all();
+        $formations     = Formation::all();
+        $enseignements  = Enseignement::all();
+        $provinces      = Province::all();
+        $regions        = Region::all();
+        $galeries       = Galerie::where('statut', 0)->get();
         $selectedOption = $request->has('option') ? Option::find($request->option) : null;
+        $parametres     = Parametre::first();
 
         return view('frontend.pages.paiement', compact(
-            'options',
-            'departements',
-            'circonscriptions',
-            'districts',
-            'formations',
-            'enseignements',
-            'provinces',
-            'regions',
-            'galeries',
-            'selectedOption'
+            'options', 'departements', 'circonscriptions', 'districts',
+            'formations', 'enseignements', 'provinces', 'regions',
+            'galeries', 'selectedOption', 'parametres'
         ));
     }
 
-    // ================== AJAX ==================
+    // ====================================================================
+    //  AJAX — Données géographiques
+    // ====================================================================
+
     public function getCirconscriptions($departementId)
     {
         return response()->json(
@@ -72,309 +74,534 @@ class PaiementInscriptionController extends Controller
         );
     }
 
-    // ================== PROCESS PAIEMENT ==================
+    // ====================================================================
+    //  TRAITEMENT — PREMIER PAIEMENT
+    // ====================================================================
+
     public function process(Request $request)
     {
+        // --- Règles de base ---
         $rules = [
-            'nom' => 'required|string|max:255',
-            'prenoms' => 'required|string|max:255',
-            'email' => 'required|email',
-            'phone' => 'required',
-            'option_id' => 'required|exists:options,id',
-            'montant' => 'required|integer|min:1',
-            'enseignement_id' => 'required|exists:enseignements,id',
+            'nom'            => 'required|string|max:255',
+            'prenoms'        => 'required|string|max:255',
+            'email'          => 'required|email',
+            'phone'          => ['required', 'regex:/^(01|02)\d{8}$/'],
+            'option_id'      => 'required|exists:options,id',
+            'montant'        => 'required|integer|min:1',
+            'enseignement_id'=> 'required|exists:enseignements,id',
         ];
 
         $enseignement = Enseignement::find($request->enseignement_id);
-        if (!$enseignement) return back()->withErrors(['enseignement_id' => 'Enseignement invalide']);
+        if (!$enseignement) {
+            return back()->withErrors(['enseignement_id' => 'Enseignement invalide']);
+        }
 
         $slug = strtolower($enseignement->nom);
 
         if (in_array($slug, ['maternelle', 'primaire'])) {
-            $rules['departement_id'] = 'required|exists:departements,id';
-            $rules['circonscription_id'] = 'required|exists:circonscriptions,id';
-            $rules['district_id'] = 'required|exists:districts,id';
-            $rules['formation_id'] = 'required|exists:formations,id';
+            $rules['departement_id']    = 'required|exists:departements,id';
+            $rules['circonscription_id']= 'required|exists:circonscriptions,id';
+            $rules['district_id']       = 'required|exists:districts,id';
+            $rules['formation_id']      = 'required|exists:formations,id';
         }
 
         if (in_array($slug, ['secondaire', 'autre'])) {
             $rules['province_id'] = 'required|exists:provinces,id';
-            $rules['region_id'] = 'required|exists:regions,id';
-            if ($slug === 'autre') $rules['autre_enseignement'] = 'required|string|max:255';
+            $rules['region_id']   = 'required|exists:regions,id';
+            if ($slug === 'autre') {
+                $rules['autre_enseignement'] = 'required|string|max:255';
+            }
         }
 
-        $request->validate($rules);
+        $request->validate($rules, [
+            'phone.regex' => 'Le numéro de téléphone doit commencer par 01 ou 02 et contenir 10 chiffres (ex: 0197000000).',
+        ]);
 
-        $reference = uniqid('pay_');
+        // --- Validation montant vs option ---
+        $option = Option::findOrFail($request->option_id);
+        $montant = (int) $request->montant;
 
+        if ($montant > $option->option_montant) {
+            return back()->withErrors([
+                'montant' => 'Le montant ne peut pas dépasser ' .
+                             number_format($option->option_montant, 0, ',', ' ') . ' FCFA.'
+            ])->withInput();
+        }
+
+        if ($option->hasMontantMinimum() && $montant < $option->getMontantMinimumEffectif()) {
+            return back()->withErrors([
+                'montant' => 'Le montant minimum du premier versement est de ' .
+                             number_format($option->montant_minimum, 0, ',', ' ') . ' FCFA.'
+            ])->withInput();
+        }
+
+        // --- Références ---
+        $reference = 'TRN-' . strtoupper(Str::random(10));
+        $token     = $this->generateToken();
+
+        // --- Payload FedaPay ---
         $payload = [
-            "description" => "Paiement D'inscription - {$request->prenoms} {$request->nom}",
-            "amount" => (int)$request->montant,
-            "currency" => ["iso" => "XOF"],
-            "callback_url" => route('paiement.success', ['ref' => $reference]),
-            "metadata" => ["reference" => $reference],
-            "customer" => [
-                "firstname" => $request->prenoms,
-                "lastname" => $request->nom,
-                "email" => $request->email,
-                "phone_number" => [
-                    "number" => "+229" . $request->phone,
-                    "country" => "bj"
-                ]
-            ]
+            'description'  => "Inscription - {$request->prenoms} {$request->nom}",
+            'amount'       => $montant,
+            'currency'     => ['iso' => 'XOF'],
+            'callback_url' => route('paiement.success', ['ref' => $reference]),
+            'metadata'     => ['reference' => $reference],
+            'customer'     => [
+                'firstname'    => $request->prenoms,
+                'lastname'     => $request->nom,
+                'email'        => $request->email,
+                'phone_number' => [
+                    'number'  => '+229' . $request->phone,
+                    'country' => 'bj',
+                ],
+            ],
         ];
 
-        Log::info('➡️ Création transaction FedaPay', $payload);
+        Log::info('Création transaction FedaPay', $payload);
 
         try {
             $response = Http::timeout(30)->withHeaders([
                 'Authorization' => 'Bearer ' . config('services.fedapay.secret'),
-                'Content-Type' => 'application/json',
+                'Content-Type'  => 'application/json',
             ])->post('https://api.fedapay.com/v1/transactions', $payload);
         } catch (\Exception $e) {
             Log::error('Exception FedaPay', ['message' => $e->getMessage()]);
-            return back()->with('error', 'Service paiement indisponible.');
+            return back()->with('error', 'Service de paiement indisponible. Réessayez.');
         }
 
-        if ($response->failed()) return back()->with('error', 'Erreur paiement.');
+        if ($response->failed()) {
+            return back()->with('error', 'Erreur lors de la création du paiement.');
+        }
 
         $transactionData = $response->json()['v1/transaction'] ?? null;
-        if (!$transactionData) return back()->with('error', 'Réponse FedaPay invalide.');
+        if (!$transactionData) {
+            return back()->with('error', 'Réponse FedaPay invalide.');
+        }
 
-        // Enregistrement paiement (sans tranches)
-        $paiement = PaiementInscription::create([
-            'nom' => $request->nom,
-            'prenoms' => $request->prenoms,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'option_id' => $request->option_id,
-            'enseignement_id' => $request->enseignement_id,
-            'departement_id' => $request->departement_id,
-            'circonscription_id' => $request->circonscription_id,
-            'district_id' => $request->district_id,
-            'formation_id' => $request->formation_id,
-            'province_id' => $request->province_id,
-            'region_id' => $request->region_id,
-            'autre_enseignement' => $request->autre_enseignement,
-            'montant' => $request->montant,
-            'reference' => $reference,
-            'transaction_id' => $transactionData['id'],
-            'payment_url' => $transactionData['payment_url'] ?? null,
-            'status' => 'pending',
+        // --- Enregistrement inscription ---
+        $inscription = PaiementInscription::create([
+            'nom'               => $request->nom,
+            'prenoms'           => $request->prenoms,
+            'email'             => $request->email,
+            'phone'             => $request->phone,
+            'option_id'         => $request->option_id,
+            'enseignement_id'   => $request->enseignement_id,
+            'departement_id'    => $request->departement_id,
+            'circonscription_id'=> $request->circonscription_id,
+            'district_id'       => $request->district_id,
+            'formation_id'      => $request->formation_id,
+            'province_id'       => $request->province_id,
+            'region_id'         => $request->region_id,
+            'autre_enseignement'=> $request->autre_enseignement,
+            'montant'           => $montant,
+            'reference'         => $reference,
+            'token'             => $token,
+            'transaction_id'    => $transactionData['id'],
+            'payment_url'       => $transactionData['payment_url'] ?? null,
+            'status'            => 'pending',
+        ]);
+
+        // --- Enregistrement tranche ---
+        PaiementTranche::create([
+            'paiement_inscription_id' => $inscription->id,
+            'montant_tranche'         => $montant,
+            'reference'               => $reference,
+            'transaction_id'          => $transactionData['id'],
+            'payment_url'             => $transactionData['payment_url'] ?? null,
+            'status'                  => 'pending',
         ]);
 
         return redirect()->away($transactionData['payment_url']);
     }
 
+    // ====================================================================
+    //  PAGE CONTINUER LE PAIEMENT — Saisie du code
+    // ====================================================================
+
+    public function showContinuerForm()
+    {
+        $parametres = Parametre::first();
+        return view('frontend.pages.paiement-continuer', compact('parametres'));
+    }
+
+    public function rechercherDossier(Request $request)
+    {
+        $request->validate([
+            'token' => 'required|string',
+        ], [
+            'token.required' => 'Veuillez saisir votre code de suivi.',
+        ]);
+
+        $inscription = PaiementInscription::where('token', strtoupper(trim($request->token)))
+            ->with('option')
+            ->first();
+
+        if (!$inscription) {
+            return back()->withErrors([
+                'token' => 'Aucun dossier trouvé avec ce code. Vérifiez et réessayez.',
+            ])->withInput();
+        }
+
+        if ($inscription->estPaye()) {
+            return back()->with('info', 'Ce dossier est déjà soldé. Aucun paiement supplémentaire requis.');
+        }
+
+        return redirect()->route('paiement.continuer.dossier', $inscription->token);
+    }
+
+    // ====================================================================
+    //  PAGE DOSSIER — Affichage et paiement de tranche
+    // ====================================================================
+
+    public function showDossier(string $token)
+    {
+        $inscription = PaiementInscription::where('token', $token)
+            ->with(['option', 'enseignement', 'tranches'])
+            ->firstOrFail();
+
+        $parametres = Parametre::first();
+
+        return view('frontend.pages.paiement-dossier', compact('inscription', 'parametres'));
+    }
+
+    public function processContinuer(Request $request, string $token)
+    {
+        $inscription = PaiementInscription::where('token', $token)
+            ->with('option')
+            ->firstOrFail();
+
+        if ($inscription->estPaye()) {
+            return redirect()->route('paiement.continuer.dossier', $token)
+                ->with('info', 'Ce dossier est déjà soldé.');
+        }
+
+        $resteAPayer = $inscription->resteAPayer();
+
+        $request->validate([
+            'montant' => 'required|integer|min:1|max:' . (int) $resteAPayer,
+        ], [
+            'montant.required' => 'Veuillez saisir un montant.',
+            'montant.min'      => 'Le montant minimum est 1 FCFA.',
+            'montant.max'      => 'Le montant ne peut pas dépasser le solde restant (' .
+                                   number_format($resteAPayer, 0, ',', ' ') . ' FCFA).',
+        ]);
+
+        $montant   = (int) $request->montant;
+        $reference = 'TRN-' . strtoupper(Str::random(10));
+
+        $payload = [
+            'description'  => "Paiement complémentaire - {$inscription->prenoms} {$inscription->nom}",
+            'amount'       => $montant,
+            'currency'     => ['iso' => 'XOF'],
+            'callback_url' => route('paiement.success', ['ref' => $reference, 'dossier' => $token]),
+            'metadata'     => ['reference' => $reference],
+            'customer'     => [
+                'firstname'    => $inscription->prenoms,
+                'lastname'     => $inscription->nom,
+                'email'        => $inscription->email,
+                'phone_number' => [
+                    'number'  => '+229' . $inscription->phone,
+                    'country' => 'bj',
+                ],
+            ],
+        ];
+
+        try {
+            $response = Http::timeout(30)->withHeaders([
+                'Authorization' => 'Bearer ' . config('services.fedapay.secret'),
+                'Content-Type'  => 'application/json',
+            ])->post('https://api.fedapay.com/v1/transactions', $payload);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Service de paiement indisponible.');
+        }
+
+        if ($response->failed()) {
+            return back()->with('error', 'Erreur lors de la création du paiement.');
+        }
+
+        $transactionData = $response->json()['v1/transaction'] ?? null;
+        if (!$transactionData) {
+            return back()->with('error', 'Réponse FedaPay invalide.');
+        }
+
+        PaiementTranche::create([
+            'paiement_inscription_id' => $inscription->id,
+            'montant_tranche'         => $montant,
+            'reference'               => $reference,
+            'transaction_id'          => $transactionData['id'],
+            'payment_url'             => $transactionData['payment_url'] ?? null,
+            'status'                  => 'pending',
+        ]);
+
+        return redirect()->away($transactionData['payment_url']);
+    }
+
+    // ====================================================================
+    //  CALLBACK FEDAPAY (retour navigateur)
+    // ====================================================================
 
     public function callback(Request $request)
     {
         $transactionId = $request->query('id');
 
         if (!$transactionId) {
-            return redirect()->route('paiement.status')
-                ->with('error', 'Transaction manquante');
+            return redirect()->route('frontend.paiement')->with('error', 'Transaction manquante.');
         }
 
-        $paiement = PaiementInscription::where('transaction_id', $transactionId)->first();
+        // Cherche d'abord dans les tranches
+        $tranche = PaiementTranche::where('transaction_id', $transactionId)->first();
 
-        if (!$paiement) {
-            return redirect()->route('paiement.status')
-                ->with('error', 'Paiement introuvable');
+        if (!$tranche) {
+            return redirect()->route('frontend.paiement')->with('error', 'Paiement introuvable.');
         }
 
         try {
-
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . config('services.fedapay.secret'),
-                'Content-Type' => 'application/json',
+                'Content-Type'  => 'application/json',
             ])->get("https://api.fedapay.com/v1/transactions/{$transactionId}");
 
             if ($response->successful()) {
-
                 $transaction = $response->json()['v1/transaction'];
 
                 if ($transaction['status'] === 'approved') {
-
-                    $paiement->status = 'approved';
-
-                    if (!$paiement->recu_envoye) {
-
-                        $parametres = Parametre::first();
-
-                        Mail::to($paiement->email)
-                            ->bcc('maflyt26@gmail.com')
-                            ->send(new RecuPaiementMail($paiement, $parametres));
-
-                        $paiement->recu_envoye = true;
-                    }
+                    $this->approuverTranche($tranche);
+                } elseif ($transaction['status'] === 'declined') {
+                    $tranche->marquerCommeEchoue();
                 }
-
-                if ($transaction['status'] === 'declined') {
-                    $paiement->status = 'failed';
-                }
-
-                $paiement->save();
             }
         } catch (\Exception $e) {
-
-            Log::error('Erreur vérification FedaPay callback', [
-                'error' => $e->getMessage()
-            ]);
+            Log::error('Erreur callback FedaPay', ['error' => $e->getMessage()]);
         }
 
-        return redirect()->route('paiement.status', $transactionId);
+        return redirect()->route('paiement.success', ['ref' => $tranche->reference]);
     }
+
+    // ====================================================================
+    //  WEBHOOK FEDAPAY
+    // ====================================================================
+
     public function webhook(Request $request)
     {
-        Log::info('🔔 Webhook FedaPay reçu', $request->all());
+        Log::info('Webhook FedaPay reçu', $request->all());
 
-        // ✅ Vérification signature webhook
         $receivedSecret = $request->header('X-FedaPay-Signature');
         if ($receivedSecret !== config('services.fedapay.webhook_secret')) {
-            Log::warning('❌ Signature webhook invalide');
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        // ✅ Récupération transaction
         $transaction = $request->input('entity');
         if (!$transaction || !isset($transaction['id'])) {
-            Log::error('❌ Transaction invalide', $request->all());
             return response()->json(['error' => 'Invalid data'], 400);
         }
 
-        $transactionId = $transaction['id'];
-        $fedapayStatus = $transaction['status'] ?? null;
+        $transactionId  = $transaction['id'];
+        $fedapayStatus  = $transaction['status'] ?? null;
 
-        // ✅ Recherche du paiement
-        $paiement = PaiementInscription::where('transaction_id', $transactionId)->first();
-        if (!$paiement) {
-            Log::error("❌ Paiement introuvable : $transactionId");
-            return response()->json(['error' => 'Paiement introuvable'], 404);
+        // Cherche la tranche correspondante
+        $tranche = PaiementTranche::where('transaction_id', $transactionId)->first();
+
+        if (!$tranche) {
+            Log::error("Tranche introuvable : {$transactionId}");
+            return response()->json(['error' => 'Tranche introuvable'], 404);
         }
 
-        // ✅ Conversion statut FedaPay
-        $status = $paiement->status;
-        if (in_array($fedapayStatus, ['approved', 'paid'])) $status = 'approved';
-        if (in_array($fedapayStatus, ['declined', 'canceled', 'failed'])) $status = 'pending';
+        if (in_array($fedapayStatus, ['approved', 'paid'])) {
+            $this->approuverTranche($tranche);
+        } elseif (in_array($fedapayStatus, ['declined', 'canceled', 'failed'])) {
+            $tranche->marquerCommeEchoue();
+        }
 
-        // ✅ Mise à jour du statut
-        $paiement->status = $status;
+        return response()->json(['message' => 'Webhook traité'], 200);
+    }
 
-        // ✅ Envoi du reçu **une seule fois** si paiement approuvé
-        if ($status === 'approved' && !$paiement->recu_envoye) {
-            try {
-                $parametres = Parametre::first();
+    // ====================================================================
+    //  PAGE DE SUCCÈS
+    // ====================================================================
 
-                // Génération du PDF avec logo et nom du site
-                $pdf = Pdf::loadView('email.paiement_recu', [
-                    'paiement' => $paiement,
-                    'logo' => $parametres?->photo ? asset('uploads/' . $parametres->photo) : asset('uploads/default.png'),
-                    'siteName' => $parametres?->website_name ?? 'MAFLYT SARL'
-                ])->setPaper('A4', 'portrait');
+    public function success(Request $request)
+    {
+        $reference = $request->query('ref');
+        if (!$reference) {
+            abort(404);
+        }
 
-                Log::info("📨 Envoi reçu au client et à MAFLYT");
+        // Cherche la tranche par référence
+        $tranche = PaiementTranche::where('reference', $reference)
+            ->with(['inscription.option', 'inscription.enseignement'])
+            ->first();
 
-                // ✅ Envoi au client
-                Mail::to($paiement->email)
-                    ->send(new RecuPaiementMail($paiement, $parametres, $pdf->output()));
+        if (!$tranche) {
+            // Fallback: cherche directement dans l'inscription (ancien comportement)
+            $inscription = PaiementInscription::where('reference', $reference)
+                ->with('option')
+                ->firstOrFail();
+        } else {
+            $inscription = $tranche->inscription;
 
-                // ✅ Envoi à MAFLYT
-                Mail::to('maflyt26@gmail.com')
-                    ->send(new RecuPaiementMail($paiement, $parametres, $pdf->output()));
+            // Vérifier le vrai statut via FedaPay si la tranche n'est pas encore finalisée
+            if ($tranche->status === 'pending' && $tranche->transaction_id) {
+                try {
+                    $response = Http::withHeaders([
+                        'Authorization' => 'Bearer ' . config('services.fedapay.secret'),
+                        'Content-Type'  => 'application/json',
+                    ])->get("https://api.fedapay.com/v1/transactions/{$tranche->transaction_id}");
 
-                $paiement->recu_envoye = true;
-
-                Log::info("✅ Reçu envoyé à {$paiement->email} et à MAFLYT");
-            } catch (\Exception $e) {
-                Log::error("❌ Erreur envoi email : " . $e->getMessage());
+                    if ($response->successful()) {
+                        $fedaStatus = $response->json()['v1/transaction']['status'] ?? null;
+                        if (in_array($fedaStatus, ['approved', 'paid'])) {
+                            $this->approuverTranche($tranche);
+                        } elseif (in_array($fedaStatus, ['declined', 'canceled', 'failed'])) {
+                            $tranche->update(['status' => 'failed']);
+                        }
+                        $tranche->refresh();
+                        $inscription->refresh();
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Erreur vérification statut FedaPay (success)', ['error' => $e->getMessage()]);
+                }
             }
         }
 
-        $paiement->save();
-
-        Log::info("✅ Paiement $transactionId mis à jour avec statut '$status'");
-
-        return response()->json([
-            'message' => 'Webhook traité avec succès'
-        ], 200);
-    }
-
-   public function success(Request $request)
-{
-    $reference = $request->query('ref');
-    $status = $request->query('status');
-
-    if (!$reference) {
-        abort(404);
-    }
-
-    $paiement = PaiementInscription::where('reference', $reference)->firstOrFail();
-
-    // Mise à jour du statut
-    if ($status == 'approved') {
-        $paiement->status = 'approved';
-        $paiement->save();
-    }
-
-    $parametres = Parametre::first();
-
-    return view('frontend.pages.paiement-success', [
-        'paiement' => $paiement,
-        'parametres' => $parametres,
-    ]);
-}
-    public function status(Request $request)
-    {
-        // Récupère la référence dans l'URL
-        $reference = $request->query('ref');
-        if (!$reference) {
-            abort(404, "Référence de paiement manquante.");
+        // Si paiement de continuation → rediriger vers le dossier
+        if ($request->query('dossier') && $inscription->token) {
+            return redirect()->route('paiement.continuer.dossier', $inscription->token)
+                ->with('info', $tranche && $tranche->status === 'approved'
+                    ? 'Votre versement a bien été enregistré.'
+                    : 'Paiement non confirmé. Veuillez réessayer.');
         }
 
-        // Cherche le paiement correspondant
-        $paiement = PaiementInscription::where('reference', $reference)->firstOrFail();
-
-        // Récupère les paramètres de la société
         $parametres = Parametre::first();
 
-        // Vérifie le statut du paiement auprès de FedaPay
+        return view('frontend.pages.paiement-success', compact('inscription', 'tranche', 'parametres'));
+    }
+
+    // ====================================================================
+    //  STATUS (vérification FedaPay)
+    // ====================================================================
+
+    public function status(Request $request)
+    {
+        $reference = $request->query('ref');
+        if (!$reference) abort(404);
+
+        $paiement   = PaiementInscription::where('reference', $reference)->firstOrFail();
+        $parametres = Parametre::first();
+
         try {
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . config('services.fedapay.secret'),
-                'Content-Type' => 'application/json',
+                'Content-Type'  => 'application/json',
             ])->get("https://api.fedapay.com/v1/transactions/{$paiement->transaction_id}");
 
             if ($response->successful()) {
-                $transaction = $response->json()['v1/transaction'];
-
-                if ($transaction['status'] === 'approved') {
-                    $paiement->status = 'approved';
-                } elseif ($transaction['status'] === 'declined') {
-                    $paiement->status = 'failed';
-                }
-
+                $tx = $response->json()['v1/transaction'];
+                if ($tx['status'] === 'approved') $paiement->status = 'approved';
+                elseif ($tx['status'] === 'declined') $paiement->status = 'failed';
                 $paiement->save();
             }
         } catch (\Exception $e) {
             Log::error('Erreur vérification FedaPay', ['message' => $e->getMessage()]);
         }
 
-        // Affiche la vue avec le paiement et les paramètres
-        return view('frontend.pages.paiement-recu', [
-            'paiement' => $paiement,
-            'parametres' => $parametres,
-        ]);
+        return view('frontend.pages.paiement-recu', compact('paiement', 'parametres'));
     }
+
+    // ====================================================================
+    //  TÉLÉCHARGEMENT REÇU
+    // ====================================================================
+
     public function download(PaiementInscription $paiement)
-{
-    $parametres = Parametre::first();
+    {
+        $parametres = Parametre::first();
+        $pdf = Pdf::loadView('frontend.pages.paiement-recu', compact('paiement', 'parametres'));
+        return $pdf->download('recu_' . $paiement->reference . '.pdf');
+    }
 
-    $pdf = Pdf::loadView('frontend.pages.paiement-recu', [
-        'paiement' => $paiement,
-        'parametres' => $parametres
-    ]);
+    public function downloadDossier(PaiementInscription $paiement)
+    {
+        $parametres = Parametre::first();
+        $paiement->load(['option', 'enseignement', 'tranches' => fn($q) => $q->where('status', 'approved')->orderBy('created_at')]);
+        $pdf = Pdf::loadView('frontend.pages.paiement-recu-dossier', compact('paiement', 'parametres'));
+        return $pdf->download('dossier_' . $paiement->token . '.pdf');
+    }
 
-    return $pdf->download('recu_'.$paiement->reference.'.pdf');
-}
+    public function downloadTranche(PaiementTranche $tranche)
+    {
+        $parametres = Parametre::first();
+        $tranche->load('inscription.option');
+        $pdf = Pdf::loadView('frontend.pages.paiement-recu-tranche', compact('tranche', 'parametres'));
+        return $pdf->download('recu_tranche_' . $tranche->reference . '.pdf');
+    }
+
+    // ====================================================================
+    //  HELPERS PRIVÉS
+    // ====================================================================
+
+    /**
+     * Approuve une tranche et met à jour le statut de l'inscription.
+     */
+    private function approuverTranche(PaiementTranche $tranche): void
+    {
+        if ($tranche->status === 'approved') return; // déjà traité
+
+        $tranche->status = 'approved';
+        $tranche->save();
+
+        $inscription = $tranche->inscription ?? PaiementInscription::find($tranche->paiement_inscription_id);
+        if (!$inscription) return;
+
+        if ($inscription->estPaye()) {
+            $inscription->status = 'approved';
+
+            // Envoi du reçu une seule fois à solde complet
+            if (!$inscription->recu_envoye) {
+                $this->envoyerRecu($inscription);
+            }
+        } else {
+            $inscription->status = 'partiel';
+        }
+
+        $inscription->save();
+
+        Log::info("Tranche {$tranche->id} approuvée — inscription {$inscription->id} statut : {$inscription->status}");
+    }
+
+    /**
+     * Envoie le reçu par email et marque l'inscription.
+     */
+    private function envoyerRecu(PaiementInscription $inscription): void
+    {
+        try {
+            $parametres = Parametre::first();
+
+            $pdf = Pdf::loadView('email.paiement_recu', [
+                'paiement' => $inscription,
+                'logo'     => $parametres?->photo
+                    ? asset('uploads/' . $parametres->photo)
+                    : asset('uploads/default.png'),
+                'siteName' => $parametres?->website_name ?? 'MAFLYT SARL',
+            ])->setPaper('A4', 'portrait');
+
+            Mail::to($inscription->email)->send(new RecuPaiementMail($inscription, $parametres, $pdf->output()));
+            Mail::to('maflyt26@gmail.com')->send(new RecuPaiementMail($inscription, $parametres, $pdf->output()));
+
+            $inscription->recu_envoye = true;
+            Log::info("Reçu envoyé à {$inscription->email}");
+        } catch (\Exception $e) {
+            Log::error('Erreur envoi reçu : ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Génère un token unique de suivi (ex: MAF-2025-A3F7K).
+     */
+    private function generateToken(): string
+    {
+        do {
+            $token = 'MAF-' . date('Y') . '-' . strtoupper(Str::random(5));
+        } while (PaiementInscription::where('token', $token)->exists());
+
+        return $token;
+    }
 }

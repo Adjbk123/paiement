@@ -37,11 +37,36 @@
                         <label for="description" class="form-label">Description (facultatif)</label>
                         <textarea name="description" id="description" class="form-control editor">{{ old('description') }}</textarea>
                     </div>
-                    {{-- Montant --}}
+                    {{-- Montant total --}}
                     <div class="mb-3">
-                        <label for="option_montant" class="form-label small">Montant (FCFA)</label>
-                        <input type="number" step="0.01" class="form-control form-control-sm" id="option_montant"
-                            name="option_montant" value="{{ old('option_montant') }}" placeholder="Ex: 25000" required>
+                        <label for="option_montant" class="form-label small fw-semibold">
+                            Montant total (FCFA) <span class="text-danger">*</span>
+                        </label>
+                        <input type="number" step="1" min="0" class="form-control form-control-sm @error('option_montant') is-invalid @enderror"
+                            id="option_montant" name="option_montant"
+                            value="{{ old('option_montant') }}" placeholder="Ex: 32000" required>
+                        @error('option_montant')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    {{-- Montant minimum premier versement --}}
+                    <div class="mb-3">
+                        <label for="montant_minimum" class="form-label small fw-semibold">
+                            Montant minimum du 1<sup>er</sup> versement (FCFA)
+                            <span class="text-muted fw-normal">— facultatif</span>
+                        </label>
+                        <input type="number" step="1" min="0" class="form-control form-control-sm @error('montant_minimum') is-invalid @enderror"
+                            id="montant_minimum" name="montant_minimum"
+                            value="{{ old('montant_minimum') }}" placeholder="Ex: 10000">
+                        <div class="form-text">
+                            <i class="fas fa-info-circle text-primary me-1"></i>
+                            Laisser vide pour autoriser n'importe quel montant comme premier versement.
+                            Si renseigné, doit être inférieur au montant total.
+                        </div>
+                        @error('montant_minimum')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     {{-- Statut --}}

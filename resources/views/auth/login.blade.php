@@ -1,134 +1,120 @@
-@extends('layouts.auth')
+@extends('layouts.app')
 @section('title', 'Connexion')
+
 @section('content')
-<style>
-    .login-wrapper {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        padding: 15px;
-    }
 
-    .login-card {
-        width: 100%;
-        max-width: 360px;
-        background: #fff;
-        border-radius: 16px;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        padding: 1.4rem;
-        animation: fadeInUp 0.6s ease-in-out;
-    }
+@include('layouts.inc.frontend.breadcrumb', [
+    'pageTitle'   => 'Connexion',
+    'breadcrumbs' => [
+        ['label' => 'Connexion', 'url' => null],
+    ]
+])
 
-    .login-title {
-        font-weight: 700;
-        color: #1d3557;
-        margin-bottom: 1rem;
-        text-align: center;
-        font-size: 1.3rem;
-    }
+<div class="container py-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
 
-    .mb-3 { margin-bottom: 0.8rem !important; }
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white p-4 text-center">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-white bg-opacity-25 rounded-circle mb-3"
+                         style="width:60px;height:60px;">
+                        <i class="fas fa-lock fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold mb-1">Espace Administrateur</h5>
+                    <small class="opacity-75">Connectez-vous pour accéder au tableau de bord</small>
+                </div>
 
-    .form-label {
-        font-size: 0.8rem;
-        margin-bottom: 4px;
-    }
+                <div class="card-body p-4 p-md-5">
 
-    .input-group {
-        border: 1px solid #ced4da;
-        border-radius: 10px;
-        height: 40px;
-        overflow: hidden;
-        transition: 0.2s ease;
-    }
+                    @include('layouts.alerte')
 
-    .input-group:focus-within {
-        border-color: #1d3557;
-        box-shadow: 0 0 0 2px rgba(69, 123, 157, 0.15);
-    }
+                    <form action="{{ route('login') }}" method="POST">
+                        @csrf
 
-    .form-control {
-        border: none;
-        font-size: 0.9rem;
-        padding: 6px 12px;
-    }
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-semibold text-muted small text-uppercase">
+                                Adresse e-mail <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="fas fa-envelope text-primary"></i>
+                                </span>
+                                <input type="email" id="email" name="email"
+                                       class="form-control bg-light border-0 @error('email') is-invalid @enderror"
+                                       value="{{ old('email') }}"
+                                       required autocomplete="email"
+                                       placeholder="votre@email.com">
+                                @error('email')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
 
-    .input-group-text {
-        background: transparent;
-        border: none;
-        color: #1d3557;
-        font-size: 0.9rem;
-        padding-right: 10px;
-    }
+                        <div class="mb-4">
+                            <label for="password" class="form-label fw-semibold text-muted small text-uppercase">
+                                Mot de passe <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="fas fa-lock text-primary"></i>
+                                </span>
+                                <input type="password" id="password" name="password"
+                                       class="form-control bg-light border-0 @error('password') is-invalid @enderror"
+                                       required autocomplete="current-password"
+                                       placeholder="••••••••">
+                                <button type="button" class="input-group-text bg-light border-0 text-muted"
+                                        id="togglePassword" title="Afficher/masquer le mot de passe"
+                                        style="cursor:pointer;">
+                                    <i class="fas fa-eye" id="eyeIcon"></i>
+                                </button>
+                                @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
 
-    .btn-primary {
-        background: #1d3557;
-        border: none;
-        border-radius: 10px;
-        padding: 6px 16px;
-        font-size: 0.9rem;
-        transition: 0.2s ease;
-    }
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="remember" name="remember"
+                                       {{ old('remember') ? 'checked' : '' }}>
+                                <label class="form-check-label small text-muted" for="remember">
+                                    Se souvenir de moi
+                                </label>
+                            </div>
+                            @if (Route::has('password.request'))
+                                <a href="{{ route('password.request') }}" class="small text-primary text-decoration-none">
+                                    Mot de passe oublié ?
+                                </a>
+                            @endif
+                        </div>
 
-    .btn-primary:hover {
-        background: #457b9d;
-        transform: translateY(-1px);
-    }
+                        <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold">
+                            <i class="fas fa-sign-in-alt me-2"></i> Se connecter
+                        </button>
 
-    .form-check-label {
-        font-size: 0.8rem;
-    }
+                    </form>
 
-    .text-center p, .text-center a {
-        font-size: 0.85rem;
-    }
-
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(25px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-</style>
-
-<div class="login-wrapper">
-    <div class="login-card">
-        <h3 class="login-title">Connexion</h3>
-
-        @include('layouts.alerte')
-
-        <form action="{{ route('login') }}" method="POST">
-            @csrf
-
-            <div class="mb-3">
-                <label for="email" class="form-label fw-semibold">Adresse e-mail</label>
-                <div class="input-group">
-                    <input type="email" id="email" name="email" class="form-control" required placeholder="Entrez votre e-mail">
-                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                 </div>
             </div>
 
-            <div class="mb-3">
-                <label for="password" class="form-label fw-semibold">Mot de passe</label>
-                <div class="input-group">
-                    <input type="password" id="password" name="password" class="form-control" required placeholder="Entrez votre mot de passe">
-                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                </div>
-            </div>
-
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="remember" name="remember">
-                    <label class="form-check-label" for="remember">Se souvenir de moi</label>
-                </div>
-                <button type="submit" class="btn btn-primary">Connexion</button>
-            </div>
-        </form>
-
-        <div class="text-center mt-3">
-            @if (Route::has('password.request'))
-                <p class="mb-1"><a href="{{ route('password.request') }}">Mot de passe oublié ?</a></p>
-            @endif
-            <p class="mb-0"><a href="{{ route('register') }}">Créer un compte</a></p>
         </div>
     </div>
 </div>
+
+@endsection
+
+@section('script')
+<script>
+document.getElementById('togglePassword').addEventListener('click', function () {
+    const input = document.getElementById('password');
+    const icon  = document.getElementById('eyeIcon');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+    }
+});
+</script>
 @endsection
