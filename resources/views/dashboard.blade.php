@@ -34,50 +34,74 @@
 {{-- ================= KPI ENSEIGNEMENTS ================= --}}
 <div class="row">
 
-    <div class="col-md-3">
+    <div class="col-md-2">
         <div class="info-box">
             <span class="info-box-icon bg-info elevation-1">
                 <i class="fas fa-school"></i>
             </span>
             <div class="info-box-content">
                 <span class="info-box-text">Maternel</span>
-                <span class="info-box-number">{{ number_format($totalMaternel, 0, ',', ' ') }} FCFA</span>
+                <span class="info-box-number">{{ number_format($totalMaternel, 0, ',', ' ') }}</span>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3">
+    <div class="col-md-2">
         <div class="info-box">
             <span class="info-box-icon bg-danger elevation-1">
                 <i class="fas fa-book"></i>
             </span>
             <div class="info-box-content">
                 <span class="info-box-text">Primaire</span>
-                <span class="info-box-number">{{ number_format($totalPrimaire, 0, ',', ' ') }} FCFA</span>
+                <span class="info-box-number">{{ number_format($totalPrimaire, 0, ',', ' ') }}</span>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3">
+    <div class="col-md-2">
         <div class="info-box">
-            <span class="info-box-icon bg-success elevation-1">
+            <span class="info-box-icon bg-indigo elevation-1">
                 <i class="fas fa-graduation-cap"></i>
             </span>
             <div class="info-box-content">
                 <span class="info-box-text">Secondaire</span>
-                <span class="info-box-number">{{ number_format($totalSecondaire, 0, ',', ' ') }} FCFA</span>
+                <span class="info-box-number">{{ number_format($totalSecondaire, 0, ',', ' ') }}</span>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3">
+    <div class="col-md-2">
         <div class="info-box">
-            <span class="info-box-icon bg-warning elevation-1">
+            <span class="info-box-icon bg-orange elevation-1">
                 <i class="fas fa-layer-group"></i>
             </span>
             <div class="info-box-content">
                 <span class="info-box-text">Autre</span>
-                <span class="info-box-number">{{ number_format($totalAutre, 0, ',', ' ') }} FCFA</span>
+                <span class="info-box-number">{{ number_format($totalAutre, 0, ',', ' ') }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="info-box">
+            <span class="info-box-icon bg-success elevation-1">
+                <i class="fas fa-check-circle"></i>
+            </span>
+            <div class="info-box-content">
+                <span class="info-box-text">Soldés</span>
+                <span class="info-box-number">{{ $countSoldes }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="info-box">
+            <span class="info-box-icon bg-warning elevation-1">
+                <i class="fas fa-hourglass-half"></i>
+            </span>
+            <div class="info-box-content">
+                <span class="info-box-text">Partiels</span>
+                <span class="info-box-number">{{ $countPartiels }}</span>
             </div>
         </div>
     </div>
@@ -192,19 +216,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // GRAPH 7 JOURS
     new Chart(document.getElementById('weekChart'), {
-        type: 'pie',
+        type: 'bar',
         data: {
             labels: @json($dailyLabels),
             datasets: [{
+                label: 'Revenu quotidien (FCFA)',
                 data: @json($dailySales),
-                backgroundColor: [
-                    '#007bff','#dc3545','#ffc107',
-                    '#28a745','#6f42c1','#fd7e14','#20c997'
-                ]
+                backgroundColor: '#007bff'
             }]
         },
         options: {
-            responsive: true
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
         }
     });
 

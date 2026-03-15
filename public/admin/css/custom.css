@@ -1,0 +1,43 @@
+/* Premium Dashboard Custom Styles */
+:root {
+    --primary-gradient: linear-gradient(135deg, #1d3557, #457b9d);
+    --secondary-gradient: linear-gradient(135deg, #457b9d, #a8dadc);
+}
+
+.info-box {
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease;
+    border: none;
+}
+
+.info-box:hover {
+    transform: translateY(-5px);
+}
+
+.card {
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: none;
+    overflow: hidden;
+}
+
+.card-header {
+    border-bottom: none;
+    padding: 1.25rem;
+}
+
+.description-block > .description-header {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+/* Sidebar fixes/enhancements */
+.main-sidebar {
+    background: #112236 !important;
+}
+
+.nav-sidebar .nav-link.active {
+    background: var(--primary-gradient) !important;
+    box-shadow: 0 4px 10px rgba(29, 53, 87, 0.4) !important;
+}

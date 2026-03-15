@@ -16,13 +16,15 @@ class DashboardController extends Controller
         $week = $request->week ?? now()->weekOfYear;
 
         // ================= KPI ENSEIGNEMENTS =================
-        $inscriptions = PaiementInscription::whereYear('created_at', $year)
-                        ->whereRaw('WEEK(created_at, 1) = ?', [$week])
-                        ->where('status', 'approved');
-
-        $inscriptionsParEnseignement = $inscriptions
-            ->select('enseignement_id', DB::raw('SUM(montant) as total'))
-            ->groupBy('enseignement_id')
+        // On calcule la somme des tranches 'approved' regroupées par enseignement
+        $inscriptionsParEnseignement = DB::table('paiement_tranches')
+            ->join('paiement_inscriptions', 'paiement_tranches.paiement_inscription_id', '=', 'paiement_inscriptions.id')
+            ->where('paiement_tranches.status', 'approved')
+            ->whereNull('paiement_inscriptions.deleted_at')
+            ->whereYear('paiement_tranches.created_at', $year)
+            ->whereRaw('WEEK(paiement_tranches.created_at, 1) = ?', [$week])
+            ->select('paiement_inscriptions.enseignement_id', DB::raw('SUM(paiement_tranches.montant_tranche) as total'))
+            ->groupBy('paiement_inscriptions.enseignement_id')
             ->pluck('total', 'enseignement_id');
 
         $totalMaternel   = $inscriptionsParEnseignement[1] ?? 0;
@@ -30,13 +32,16 @@ class DashboardController extends Controller
         $totalSecondaire = $inscriptionsParEnseignement[3] ?? 0;
         $totalAutre      = $inscriptionsParEnseignement[4] ?? 0;
 
-        // ================= STATISTIQUES MENSUELLES =================
-        $statistiquesMensuelles = PaiementInscription::select(
-                DB::raw('MONTH(created_at) as mois'),
-                DB::raw('SUM(montant) as montant')
+        // ================= STATISTIQUES MENSUELLES (Année) =================
+        $statistiquesMensuelles = DB::table('paiement_tranches')
+            ->join('paiement_inscriptions', 'paiement_tranches.paiement_inscription_id', '=', 'paiement_inscriptions.id')
+            ->where('paiement_tranches.status', 'approved')
+            ->whereNull('paiement_inscriptions.deleted_at')
+            ->whereYear('paiement_tranches.created_at', $year)
+            ->select(
+                DB::raw('MONTH(paiement_tranches.created_at) as mois'),
+                DB::raw('SUM(paiement_tranches.montant_tranche) as montant')
             )
-            ->whereYear('created_at', $year)
-            ->where('status', 'approved')
             ->groupBy('mois')
             ->orderBy('mois')
             ->get();
@@ -49,40 +54,84 @@ class DashboardController extends Controller
             $monthlySales[] = $moisData->montant ?? 0;
         }
 
-        // ================= STATISTIQUES HEBDOMADAIRES =================
-        $statistiquesSemaine = PaiementInscription::select(
-                DB::raw('DAYOFWEEK(created_at) as jour'),
-                DB::raw('SUM(montant) as montant')
+        // ================= STATISTIQUES HEBDOMADAIRES (Jours) =================
+        $statistiquesSemaine = DB::table('paiement_tranches')
+            ->join('paiement_inscriptions', 'paiement_tranches.paiement_inscription_id', '=', 'paiement_inscriptions.id')
+            ->where('paiement_tranches.status', 'approved')
+            ->whereNull('paiement_inscriptions.deleted_at')
+            ->whereYear('paiement_tranches.created_at', $year)
+            ->whereRaw('WEEK(paiement_tranches.created_at, 1) = ?', [$week])
+            ->select(
+                DB::raw('DAYOFWEEK(paiement_tranches.created_at) as jour'),
+                DB::raw('SUM(paiement_tranches.montant_tranche) as montant')
             )
-            ->whereYear('created_at', $year)
-            ->whereRaw('WEEK(created_at, 1) = ?', [$week])
-            ->where('status', 'approved')
             ->groupBy('jour')
             ->orderBy('jour')
             ->get();
 
         $dailyLabels = [];
         $dailySales  = [];
-        foreach ($statistiquesSemaine as $stat) {
-            // DAYOFWEEK = 1 (Dimanche) à 7 (Samedi)
-            $jour = Carbon::create()->dayOfWeek($stat->jour - 1)->locale('fr')->translatedFormat('l');
-            $dailyLabels[] = ucfirst($jour);
-            $dailySales[] = $stat->montant;
+        // On génère les 7 jours de la semaine (1=Dimanche, 7=Samedi en MySQL)
+        $joursSemaine = [2, 3, 4, 5, 6, 7, 1]; // On commence par Lundi (2) -> Dimanche (1)
+        foreach ($joursSemaine as $j) {
+            $nomJour = Carbon::create()->dayOfWeek($j === 7 ? 0 : $j)->locale('fr')->translatedFormat('l');
+            if ($j === 1) $nomJour = Carbon::create()->dayOfWeek(0)->locale('fr')->translatedFormat('l'); // Dimanche
+            
+            // Correction pour Carbon : 0 = Dimanche, 1 = Lundi ...
+            $carbonDay = $j - 1; 
+            $label = ucfirst(Carbon::now()->startOfWeek(Carbon::MONDAY)->addDays(($j+5)%7)->locale('fr')->translatedFormat('l'));
+            
+            // Simpler way:
+            $labelsMap = [
+                1 => 'Dimanche', 2 => 'Lundi', 3 => 'Mardi', 4 => 'Mercredi',
+                5 => 'Jeudi', 6 => 'Vendredi', 7 => 'Samedi'
+            ];
+            
+            $dailyLabels[] = $labelsMap[$j];
+            $stat = $statistiquesSemaine->firstWhere('jour', $j);
+            $dailySales[] = $stat->montant ?? 0;
         }
 
         // ================= FOOTER FINANCIER =================
-        $totalRevenu   = PaiementInscription::whereYear('created_at', $year)
-                            ->whereRaw('WEEK(created_at, 1) = ?', [$week])
-                            ->where('status', 'approved')->sum('montant');
+        // Total Revenu = Somme des tranches approuvées
+        $totalRevenu = DB::table('paiement_tranches')
+            ->join('paiement_inscriptions', 'paiement_tranches.paiement_inscription_id', '=', 'paiement_inscriptions.id')
+            ->where('paiement_tranches.status', 'approved')
+            ->whereNull('paiement_inscriptions.deleted_at')
+            ->whereYear('paiement_tranches.created_at', $year)
+            ->whereRaw('WEEK(paiement_tranches.created_at, 1) = ?', [$week])
+            ->sum('paiement_tranches.montant_tranche');
 
-        $totalPending  = PaiementInscription::whereYear('created_at', $year)
-                            ->whereRaw('WEEK(created_at, 1) = ?', [$week])
-                            ->where('status', 'pending')->sum('montant');
+        // Total Pending = Somme des tranches en attente
+        $totalPending = DB::table('paiement_tranches')
+            ->join('paiement_inscriptions', 'paiement_tranches.paiement_inscription_id', '=', 'paiement_inscriptions.id')
+            ->where('paiement_tranches.status', 'pending')
+            ->whereNull('paiement_inscriptions.deleted_at')
+            ->whereYear('paiement_tranches.created_at', $year)
+            ->whereRaw('WEEK(paiement_tranches.created_at, 1) = ?', [$week])
+            ->sum('paiement_tranches.montant_tranche');
 
-        $totalApproved = $totalRevenu; // même que totalRevenu
-        $totalFailed   = PaiementInscription::whereYear('created_at', $year)
-                            ->whereRaw('WEEK(created_at, 1) = ?', [$week])
-                            ->where('status', 'failed')->sum('montant');
+        $totalApproved = $totalRevenu;
+
+        // Total Failed = Somme des tranches échouées
+        $totalFailed = DB::table('paiement_tranches')
+            ->join('paiement_inscriptions', 'paiement_tranches.paiement_inscription_id', '=', 'paiement_inscriptions.id')
+            ->where('paiement_tranches.status', 'failed')
+            ->whereNull('paiement_inscriptions.deleted_at')
+            ->whereYear('paiement_tranches.created_at', $year)
+            ->whereRaw('WEEK(paiement_tranches.created_at, 1) = ?', [$week])
+            ->sum('paiement_tranches.montant_tranche');
+
+        // ================= STATUTS DOSSIERS =================
+        $countSoldes = PaiementInscription::where('status', 'approved')
+            ->whereYear('created_at', $year)
+            ->whereRaw('WEEK(created_at, 1) = ?', [$week])
+            ->count();
+
+        $countPartiels = PaiementInscription::where('status', 'partiel')
+            ->whereYear('created_at', $year)
+            ->whereRaw('WEEK(created_at, 1) = ?', [$week])
+            ->count();
 
         // ================= RETOUR VUE =================
         return view('dashboard', compact(
@@ -90,7 +139,8 @@ class DashboardController extends Controller
             'totalMaternel','totalPrimaire','totalSecondaire','totalAutre',
             'monthlyLabels','monthlySales',
             'dailyLabels','dailySales',
-            'totalRevenu','totalPending','totalApproved','totalFailed'
+            'totalRevenu','totalPending','totalApproved','totalFailed',
+            'countSoldes', 'countPartiels'
         ));
     }
 }
