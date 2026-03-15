@@ -6,30 +6,7 @@
 <section class="content">
 <div class="container-fluid">
 
-{{-- ================= FILTRES ================= --}}
-<div class="row mb-3">
-    <div class="col-12">
-        <form method="GET" class="form-inline">
-            <label class="mr-2">Année :</label>
-            <select name="year" class="form-control mr-3" onchange="this.form.submit()">
-                @for($y = now()->year; $y >= now()->year - 2; $y--)
-                    <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>
-                        {{ $y }}
-                    </option>
-                @endfor
-            </select>
 
-            <label class="mr-2">Semaine :</label>
-            <select name="week" class="form-control" onchange="this.form.submit()">
-                @for($w = 1; $w <= 53; $w++)
-                    <option value="{{ $w }}" {{ $week == $w ? 'selected' : '' }}>
-                        Semaine {{ $w }}
-                    </option>
-                @endfor
-            </select>
-        </form>
-    </div>
-</div>
 
 {{-- ================= KPI ENSEIGNEMENTS ================= --}}
 <div class="row">
@@ -114,10 +91,20 @@
     {{-- 12 MOIS --}}
     <div class="col-md-8">
         <div class="card">
-            <div class="card-header bg-success text-white">
-                <h5 class="card-title">
-                    Recap Mensuel ({{ $year }})
+            <div class="card-header bg-success text-white d-flex align-items-center justify-content-between">
+                <h5 class="card-title mb-0">
+                    Recap Mensuel
                 </h5>
+                <form method="GET" class="m-0">
+                    <input type="hidden" name="week" value="{{ $week }}">
+                    <select name="year" class="form-control form-control-sm border-0 shadow-sm" style="width: 100px;" onchange="this.form.submit()">
+                        @for($y = now()->year; $y >= now()->year - 2; $y--)
+                            <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>
+                                {{ $y }}
+                            </option>
+                        @endfor
+                    </select>
+                </form>
             </div>
             <div class="card-body">
                 <canvas id="salesChart"></canvas>
@@ -128,10 +115,20 @@
     {{-- 7 JOURS --}}
     <div class="col-md-4">
         <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="card-title">
+            <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between">
+                <h5 class="card-title mb-0">
                     Semaine {{ $week }}
                 </h5>
+                <form method="GET" class="m-0">
+                    <input type="hidden" name="year" value="{{ $year }}">
+                    <select name="week" class="form-control form-control-sm border-0 shadow-sm" style="width: 120px;" onchange="this.form.submit()">
+                        @for($w = 1; $w <= 53; $w++)
+                            <option value="{{ $w }}" {{ $week == $w ? 'selected' : '' }}>
+                                Sem. {{ $w }}
+                            </option>
+                        @endfor
+                    </select>
+                </form>
             </div>
             <div class="card-body">
                 <canvas id="weekChart"></canvas>
@@ -216,20 +213,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // GRAPH 7 JOURS
     new Chart(document.getElementById('weekChart'), {
-        type: 'bar',
+        type: 'pie',
         data: {
             labels: @json($dailyLabels),
             datasets: [{
-                label: 'Revenu quotidien (FCFA)',
                 data: @json($dailySales),
-                backgroundColor: '#007bff'
+                backgroundColor: [
+                    '#007bff','#dc3545','#ffc107',
+                    '#28a745','#6f42c1','#fd7e14','#20c997'
+                ]
             }]
         },
         options: {
-            responsive: true,
-            scales: {
-                y: { beginAtZero: true }
-            }
+            responsive: true
         }
     });
 
