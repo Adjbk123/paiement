@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Route;
 //  return view('welcome');
 //});
 
-Auth::routes();
+Auth::routes(['register' => false]);
 Route::controller(App\Http\Controllers\Frontend\FrontendController::class)->group(function () {
     Route::get('/', 'index'); // Accueil
 

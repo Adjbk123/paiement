@@ -76,14 +76,7 @@
         </li>
         @endauth
 
-        @guest
-        <!-- Connexion si non connecté -->
-        <li class="nav-item">
-            <a href="{{ route('login') }}" class="nav-link d-flex align-items-center">
-                <i class="fas fa-sign-in-alt mr-1"></i> Connexion
-            </a>
-        </li>
-        @endguest
+
 
     </ul>
 </nav>
