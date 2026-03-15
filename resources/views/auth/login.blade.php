@@ -92,6 +92,15 @@
                             <i class="fas fa-sign-in-alt me-2"></i> Se connecter
                         </button>
 
+                        @if (Route::has('register'))
+                            <div class="text-center mt-4 pt-3 border-top">
+                                <p class="text-muted small mb-2">Vous n'avez pas de compte ?</p>
+                                <a href="{{ route('register') }}" class="btn btn-outline-secondary w-100 py-2 rounded-pill fw-bold">
+                                    <i class="fas fa-user-plus me-2"></i> S'inscrire
+                                </a>
+                            </div>
+                        @endif
+
                     </form>
 
                 </div>

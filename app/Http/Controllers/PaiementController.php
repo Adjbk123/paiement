@@ -172,7 +172,13 @@ public function destroySelected(Request $request)
     {
         $query = PaiementInscription::with([
             'enseignement','circonscription','formation','region','province','option'
-        ])->where('status','approved');
+        ]);
+
+        if ($request->status) {
+            $query->where('status', $request->status);
+        } else {
+            $query->whereIn('status', ['approved', 'partiel']);
+        }
 
         if ($request->enseignement) {
             if ($request->enseignement == 'autre') {
@@ -246,11 +252,13 @@ public function destroySelected(Request $request)
     // ================= EXPORT EXCEL =================
     public function exportExcel(Request $request)
     {
+        $filters = $request->only(['status', 'enseignement', 'circonscription', 'formation', 'region', 'option', 'date_paiement']);
+        
         $date = $request->date_paiement;
         $filename = 'inscriptions';
         if($date) $filename .= '_'.$date;
         $filename .= '.xlsx';
-        return Excel::download(new PaiementsExport($date),$filename);
+        return Excel::download(new PaiementsExport($filters),$filename);
     }
 
 }

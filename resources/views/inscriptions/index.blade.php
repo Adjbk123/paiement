@@ -97,52 +97,85 @@
         <div class="card-body p-3">
 
             {{-- ===== FILTRES ===== --}}
-            <form method="GET" action="{{ route('administrateur.gestinscriptions.inscriptions.index') }}">
-                <div class="row g-2 mb-3">
-                    <div class="col-md-3">
-                        <input type="text" name="search" class="form-control form-control-sm bg-light border-0 rounded-3"
-                               placeholder="Nom, prénom, email, tél, token…" value="{{ request('search') }}">
+            {{-- ===== FILTRES ===== --}}
+            <div class="bg-light p-3 rounded-4 mb-4 border" style="border-color: #f1f3f5 !important;">
+                <h6 class="fw-bold mb-3 text-secondary d-flex align-items-center">
+                    <i class="fas fa-filter me-2 text-primary"></i> Affiner les résultats
+                </h6>
+                <form method="GET" action="{{ route('administrateur.gestinscriptions.inscriptions.index') }}">
+                    <div class="row g-3">
+                        {{-- Ligne 1 --}}
+                        <div class="col-md-3 mb-2">
+                            <label class="d-block small fw-bold text-muted mb-1">Recherche globale</label>
+                            <input type="text" name="search" class="form-control form-control-sm border-0 shadow-sm rounded-3 py-2"
+                                   placeholder="Nom, prénom…" value="{{ request('search') }}">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="d-block small fw-bold text-muted mb-1">Statut</label>
+                            <select name="status" class="form-control form-control-sm border-0 shadow-sm rounded-3">
+                                <option value="">Tous les statuts</option>
+                                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Soldé</option>
+                                <option value="partiel"  {{ request('status') == 'partiel'  ? 'selected' : '' }}>Partiel</option>
+                                <option value="pending"  {{ request('status') == 'pending'  ? 'selected' : '' }}>En attente</option>
+                                <option value="failed"   {{ request('status') == 'failed'   ? 'selected' : '' }}>Échec</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="d-block small fw-bold text-muted mb-1">Enseignement</label>
+                            <select name="enseignement" class="form-control form-control-sm border-0 shadow-sm rounded-3">
+                                <option value="">Tous</option>
+                                @foreach ($enseignements as $ens)
+                                    <option value="{{ $ens->id }}" {{ request('enseignement') == $ens->id ? 'selected' : '' }}>{{ $ens->nom }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="d-block small fw-bold text-muted mb-1">Option</label>
+                            <select name="option" class="form-control form-control-sm border-0 shadow-sm rounded-3">
+                                <option value="">Toutes</option>
+                                @foreach ($options as $opt)
+                                    <option value="{{ $opt->id }}" {{ request('option') == $opt->id ? 'selected' : '' }}>{{ $opt->nom }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- Ligne 2 --}}
+                        <div class="col-md-3 mb-2 mt-lg-2">
+                            <label class="d-block small fw-bold text-muted mb-1">Centre de Formation (CS)</label>
+                            <select name="formation" class="form-control form-control-sm border-0 shadow-sm rounded-3">
+                                <option value="">Tous</option>
+                                @foreach ($formations as $form)
+                                    <option value="{{ $form->id }}" {{ request('formation') == $form->id ? 'selected' : '' }}>{{ $form->nom }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-3 mb-2 mt-lg-2">
+                            <label class="d-block small fw-bold text-muted mb-1">Commune / Région</label>
+                            <select name="region" class="form-control form-control-sm border-0 shadow-sm rounded-3">
+                                <option value="">Toutes</option>
+                                @foreach ($regions as $reg)
+                                    <option value="{{ $reg->id }}" {{ request('region') == $reg->id ? 'selected' : '' }}>{{ $reg->nom }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-2 mt-lg-2">
+                            <label class="d-block small fw-bold text-muted mb-1">Date de Paiement</label>
+                            <input type="date" name="date_paiement" class="form-control form-control-sm border-0 shadow-sm rounded-3 text-muted"
+                                   value="{{ request('date_paiement') }}">
+                        </div>
+                        <div class="col-md-3 mt-lg-3 d-flex gap-2 align-items-end justify-content-end">
+                            <a href="{{ route('administrateur.gestinscriptions.inscriptions.index') }}"
+                               class="btn btn-sm btn-light px-3 border shadow-sm rounded-pill fw-semibold text-secondary" title="Réinitialiser">
+                                <i class="fas fa-undo"></i>
+                            </a>
+                            <button class="btn btn-sm btn-primary px-4 shadow-sm rounded-pill fw-semibold flex-grow-1" title="Appliquer">
+                                <i class="fas fa-filter me-1"></i> Filtrer
+                            </button>
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <select name="status" class="form-select form-select-sm bg-light border-0 rounded-3">
-                            <option value="">Tous les statuts</option>
-                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Soldé</option>
-                            <option value="partiel"  {{ request('status') == 'partiel'  ? 'selected' : '' }}>Partiel</option>
-                            <option value="pending"  {{ request('status') == 'pending'  ? 'selected' : '' }}>En attente</option>
-                            <option value="failed"   {{ request('status') == 'failed'   ? 'selected' : '' }}>Échec</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select name="option" class="form-select form-select-sm bg-light border-0 rounded-3">
-                            <option value="">Toutes les formations</option>
-                            @foreach ($options as $opt)
-                                <option value="{{ $opt->id }}" {{ request('option') == $opt->id ? 'selected' : '' }}>{{ $opt->nom }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select name="enseignement" class="form-select form-select-sm bg-light border-0 rounded-3">
-                            <option value="">Tout enseignement</option>
-                            @foreach ($enseignements as $ens)
-                                <option value="{{ $ens->id }}" {{ request('enseignement') == $ens->id ? 'selected' : '' }}>{{ $ens->nom }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <input type="date" name="date_paiement" class="form-control form-control-sm bg-light border-0 rounded-3"
-                               value="{{ request('date_paiement') }}">
-                    </div>
-                    <div class="col-md-1 d-flex gap-1">
-                        <button class="btn btn-sm btn-primary rounded-3 flex-grow-1" title="Filtrer">
-                            <i class="fas fa-search"></i>
-                        </button>
-                        <a href="{{ route('administrateur.gestinscriptions.inscriptions.index') }}"
-                           class="btn btn-sm btn-secondary rounded-3 flex-grow-1" title="Réinitialiser">
-                            <i class="fas fa-rotate-right"></i>
-                        </a>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </div>
 
             {{-- ===== TABLEAU ===== --}}
             <div class="table-responsive">

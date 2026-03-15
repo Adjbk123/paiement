@@ -17,10 +17,11 @@ class DashboardController extends Controller
 
         // ================= KPI ENSEIGNEMENTS =================
         $inscriptions = PaiementInscription::whereYear('created_at', $year)
+                        ->whereRaw('WEEK(created_at, 1) = ?', [$week])
                         ->where('status', 'approved');
 
         $inscriptionsParEnseignement = $inscriptions
-            ->select('enseignement_id', DB::raw('count(*) as total'))
+            ->select('enseignement_id', DB::raw('SUM(montant) as total'))
             ->groupBy('enseignement_id')
             ->pluck('total', 'enseignement_id');
 
@@ -71,13 +72,16 @@ class DashboardController extends Controller
 
         // ================= FOOTER FINANCIER =================
         $totalRevenu   = PaiementInscription::whereYear('created_at', $year)
+                            ->whereRaw('WEEK(created_at, 1) = ?', [$week])
                             ->where('status', 'approved')->sum('montant');
 
         $totalPending  = PaiementInscription::whereYear('created_at', $year)
+                            ->whereRaw('WEEK(created_at, 1) = ?', [$week])
                             ->where('status', 'pending')->sum('montant');
 
         $totalApproved = $totalRevenu; // même que totalRevenu
         $totalFailed   = PaiementInscription::whereYear('created_at', $year)
+                            ->whereRaw('WEEK(created_at, 1) = ?', [$week])
                             ->where('status', 'failed')->sum('montant');
 
         // ================= RETOUR VUE =================

@@ -1,65 +1,98 @@
 @extends('layouts.admin')
-@section('title', 'Page Administrateur')
+@section('title', 'Accueil')
 
 @section('content')
 
-<div class="admin-bg d-flex align-items-center position-relative overflow-hidden">
-
-    <!-- Particules -->
-    <div id="particles"></div>
-
-    <div class="container py-5 position-relative">
-        <div class="row justify-content-center">
-            <div class="col-lg-12">
-
-                <div class="card admin-card shadow-lg border-0">
-                    <div class="card-body text-center p-">
-
-                        <h1 class="welcome-title mb-3">
-                             Bienvenue,
-                            <span class="text-primary">{{ userFullName() }}</span>
-                        </h1>
-
-                        <h6 class="text-muted mb-3">Vos rôles</h6>
-
-                        <div class="mb-4 d-flex flex-wrap justify-content-center role-container">
-
-                            @foreach(auth()->user()->roles as $role)
-                                @php
-                                    switch($role->nom) {
-                                        case 'administrateur': $badgeColor = 'danger'; break;
-                                        case 'employer': $badgeColor = 'primary'; break;
-                                        case 'comptable': $badgeColor = 'success'; break;
-                                        case 'manager': $badgeColor = 'info'; break;
-                                        default: $badgeColor = 'secondary';
-                                    }
-                                @endphp
-
-                                <span class="role-chip bg-{{ $badgeColor }}">
-                                    {{ ucfirst($role->nom) }}
-                                </span>
-
-                            @endforeach
-
-                        </div>
-
-                        <p class="fs-5 text-soft">
-                            Cette plateforme vous permet de gérer facilement vos inscriptions et vos paiements.
+<div class="row">
+    <!-- Colonne Principale -->
+    <div class="col-lg-12">
+        
+        <!-- Welcome Banner -->
+        <div class="card shadow-sm border-0 mb-4" style="background: linear-gradient(135deg, #0d6efd 0%, #00d4ff 100%);">
+            <div class="card-body text-white p-4 p-md-5">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2 class="font-weight-bold mb-3">
+                            <i class="fas fa-hand-sparkles mr-2 text-warning"></i> 
+                            Bienvenue sur votre espace, {{ userFullName() }} !
+                        </h2>
+                        <p class="lead mb-0 text-white-50">
+                            Gérez vos inscriptions, suivez les paiements et accédez rapidement à toutes les fonctionnalités de la plateforme depuis ce tableau de bord.
                         </p>
-
-                        <hr class="my-4">
-
-                        <p class="text-soft">
-                            Suivez vos formations, consultez vos documents et gérez vos données personnelles depuis votre espace sécurisé.
-                        </p>
-
-                        <a href="{{ url('/') }}" class="btn btn-primary btn-modern mt-3">
-                             Accéder à mon espace
+                    </div>
+                    <div class="col-md-4 text-md-right mt-4 mt-md-0">
+                        <a href="{{ url('/') }}" class="btn btn-light btn-lg rounded-pill shadow-sm px-4 text-primary font-weight-bold">
+                            <i class="fas fa-globe mr-2"></i> Voir le site public
                         </a>
-
                     </div>
                 </div>
+            </div>
+        </div>
 
+    </div>
+</div>
+
+<div class="row">
+    <!-- Vos Accès et Rôles -->
+    <div class="col-lg-6">
+        <div class="card card-outline card-primary shadow-sm border-0 h-100">
+            <div class="card-header bg-white border-bottom-0 pb-0">
+                <h5 class="card-title text-primary font-weight-bold">
+                    <i class="fas fa-user-shield mr-2"></i> Vos Accès et Rôles
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-4">
+                    Assurez-vous d'avoir les bonnes autorisations pour effectuer vos opérations courantes. Voici la liste de vos accès actuels :
+                </p>
+
+                <div class="d-flex flex-wrap gap-2 mb-4 role-container">
+                    @forelse(auth()->user()->roles as $role)
+                        @php
+                            switch($role->nom) {
+                                case 'administrateur': $badgeColor = 'danger'; $icon = 'fa-user-cog'; break;
+                                case 'employer': $badgeColor = 'primary'; $icon = 'fa-user-tie'; break;
+                                case 'comptable': $badgeColor = 'success'; $icon = 'fa-file-invoice-dollar'; break;
+                                case 'manager': $badgeColor = 'info'; $icon = 'fa-user-tie'; break;
+                                default: $badgeColor = 'secondary'; $icon = 'fa-user';
+                            }
+                        @endphp
+                        
+                        <span class="badge badge-{{ $badgeColor }} px-3 py-2 text-uppercase mb-2 mr-2 elevation-1" style="font-size: 14px;">
+                            <i class="fas {{ $icon }} mr-1"></i> {{ $role->nom }}
+                        </span>
+                    @empty
+                        <span class="badge badge-secondary px-3 py-2 text-uppercase mb-2 elevation-1" style="font-size: 14px;">
+                            <i class="fas fa-user-times mr-1"></i> Aucun rôle assigné
+                        </span>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions Rapides -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white border-bottom-0 pb-0">
+                <h5 class="card-title text-dark font-weight-bold">
+                    <i class="fas fa-bolt text-warning mr-2"></i> Actions Rapides
+                </h5>
+            </div>
+            <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+                <p class="text-muted mb-4">
+                    Passez directement à la gestion avancée si vous possédez les droits nécessaires.
+                </p>
+
+                @if(auth()->user()->hasRole('administrateur'))
+                    <a href="{{ route('administrateur.dashboard') }}" class="btn btn-primary btn-lg rounded-pill shadow-sm px-4 mb-3" style="width: 100%; max-width: 300px;">
+                        <i class="fas fa-chart-pie mr-2"></i> Dashboard Administration
+                    </a>
+                @endif
+                
+                <a href="{{ route('administrateur.gestinscriptions.inscriptions.index') }}" class="btn btn-outline-info btn-lg rounded-pill shadow-sm px-4" style="width: 100%; max-width: 300px;">
+                    <i class="fas fa-users mr-2"></i> Voir les inscriptions
+                </a>
             </div>
         </div>
     </div>
@@ -67,120 +100,32 @@
 
 @endsection
 
+@push('scripts')
 <style>
-
-/* Background */
-.admin-bg {
-    background: linear-gradient(135deg, #0d6efd, #6610f2);
-    min-height: 100vh;
-}
-
-/* Carte */
-.admin-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(12px);
-    border-radius: 20px;
-    transition: 0.3s ease;
-}
-
-.admin-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-}
-
-/* Titre */
-.welcome-title {
-    font-weight: 700;
-}
-
-/* Container roles */
-.role-container {
-    gap: 12px;
-}
-
-/* Chip premium */
-.role-chip {
-    padding: 10px 22px;
-    border-radius: 50px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #fff;
-    letter-spacing: 0.5px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-    transition: all 0.3s ease;
-}
-
-.role-chip:hover {
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-}
-
-/* Couleurs */
-.bg-danger { background: linear-gradient(135deg, #dc3545, #ff6b6b); }
-.bg-primary { background: linear-gradient(135deg, #0d6efd, #5a9bff); }
-.bg-success { background: linear-gradient(135deg, #198754, #4cd98b); }
-.bg-info { background: linear-gradient(135deg, #0dcaf0, #6fe7ff); }
-.bg-secondary { background: linear-gradient(135deg, #6c757d, #9ea7ad); }
-
-/* Bouton */
-.btn-modern {
-    border-radius: 50px;
-    padding: 12px 30px;
-    font-weight: 600;
-    transition: 0.3s;
-}
-
-.btn-modern:hover {
-    transform: scale(1.05);
-}
-
-/* Texte */
-.text-soft {
-    color: #6c757d;
-}
-
-/* Particules */
-#particles {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-}
-
-.particle {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    background: white;
-    opacity: 0.8;
-    border-radius: 50%;
-    animation: fall linear infinite;
-}
-
-@keyframes fall {
-    to {
-        transform: translateY(100vh);
+    /* Légers ajustements AdminLTE Custom */
+    .callout {
+        border-left-width: 5px;
+        padding: 2rem;
     }
-}
-
+    .callout-info {
+        border-left-color: #17a2b8 !important;
+    }
+    .rounded-lg {
+        border-radius: 0.5rem !important;
+    }
+    .rounded-pill {
+        border-radius: 50rem !important;
+    }
+    .btn {
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    }
+    .badge {
+        letter-spacing: 0.5px;
+    }
 </style>
-
-<script>
-function createParticle() {
-    const particle = document.createElement("div");
-    particle.classList.add("particle");
-
-    particle.style.left = Math.random() * window.innerWidth + "px";
-    particle.style.animationDuration = (Math.random() * 5 + 4) + "s";
-
-    document.getElementById("particles").appendChild(particle);
-
-    setTimeout(() => {
-        particle.remove();
-    }, 9000);
-}
-
-setInterval(createParticle, 250);
-</script>
+@endpush

@@ -41,7 +41,7 @@
             </span>
             <div class="info-box-content">
                 <span class="info-box-text">Maternel</span>
-                <span class="info-box-number">{{ $totalMaternel }}</span>
+                <span class="info-box-number">{{ number_format($totalMaternel, 0, ',', ' ') }} FCFA</span>
             </div>
         </div>
     </div>
@@ -53,7 +53,7 @@
             </span>
             <div class="info-box-content">
                 <span class="info-box-text">Primaire</span>
-                <span class="info-box-number">{{ $totalPrimaire }}</span>
+                <span class="info-box-number">{{ number_format($totalPrimaire, 0, ',', ' ') }} FCFA</span>
             </div>
         </div>
     </div>
@@ -65,7 +65,7 @@
             </span>
             <div class="info-box-content">
                 <span class="info-box-text">Secondaire</span>
-                <span class="info-box-number">{{ $totalSecondaire }}</span>
+                <span class="info-box-number">{{ number_format($totalSecondaire, 0, ',', ' ') }} FCFA</span>
             </div>
         </div>
     </div>
@@ -77,7 +77,7 @@
             </span>
             <div class="info-box-content">
                 <span class="info-box-text">Autre</span>
-                <span class="info-box-number">{{ $totalAutre }}</span>
+                <span class="info-box-number">{{ number_format($totalAutre, 0, ',', ' ') }} FCFA</span>
             </div>
         </div>
     </div>
@@ -125,7 +125,7 @@
             <h5 class="description-header text-success">
                 {{ number_format($totalRevenu, 0, ',', ' ') }} FCFA
             </h5>
-            <span class="description-text">TOTAL REVENUE</span>
+            <span class="description-text">TOTAL REVENUE (SEM. {{ $week }})</span>
         </div>
     </div>
 
@@ -134,7 +134,7 @@
             <h5 class="description-header text-warning">
                 {{ number_format($totalPending, 0, ',', ' ') }} FCFA
             </h5>
-            <span class="description-text">TOTAL PENDING</span>
+            <span class="description-text">TOTAL PENDING (SEM. {{ $week }})</span>
         </div>
     </div>
 
@@ -143,7 +143,7 @@
             <h5 class="description-header text-primary">
                 {{ number_format($totalApproved, 0, ',', ' ') }} FCFA
             </h5>
-            <span class="description-text">TOTAL APPROVED</span>
+            <span class="description-text">TOTAL APPROVED (SEM. {{ $week }})</span>
         </div>
     </div>
 
@@ -152,11 +152,12 @@
             <h5 class="description-header text-danger">
                 {{ number_format($totalFailed, 0, ',', ' ') }} FCFA
             </h5>
-            <span class="description-text">TOTAL FAILED</span>
+            <span class="description-text">TOTAL FAILED (SEM. {{ $week }})</span>
         </div>
     </div>
 
 </div>
+
 
 </div>
 </section>

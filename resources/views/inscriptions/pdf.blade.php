@@ -38,10 +38,10 @@
             <th>#</th>
             <th>Nom</th>
             <th>Enseignement</th>
-            <th>Localisation</th>
-            <th>Formation</th>
-
-
+            <th>Option</th>
+            <th>Formation (CS)</th>
+            <th>Commune (Région)</th>
+            <th>Statut</th>
         </tr>
     </thead>
     <tbody>
@@ -62,26 +62,27 @@
                     @endif
                 </td>
 
-                {{-- Localisation --}}
+                {{-- Option --}}
+                <td>{{ optional($inscription->option)->nom ?? '-' }}</td>
+
+                {{-- Formation (CS) --}}
+                <td>{{ optional($inscription->formation)->nom ?? '-' }}</td>
+
+                {{-- Commune (Région) --}}
+                <td>{{ optional($inscription->region)->nom ?? '-' }}</td>
+
+                {{-- Statut --}}
                 <td>
-                    @if(in_array($ens, ['Maternel', 'Primaire']))
-                        {{ optional($inscription->circonscription)->nom ?? '-' }}
+                    @if($inscription->status === 'approved')
+                        Soldé
+                    @elseif($inscription->status === 'partiel')
+                        Partiel
+                    @elseif($inscription->status === 'pending')
+                        En attente
                     @else
-                        {{ optional($inscription->province)->nom ?? '-' }}
+                        Échoué
                     @endif
                 </td>
-
-                {{-- Formation --}}
-                <td>
-                    @if(in_array($ens, ['Maternel', 'Primaire']))
-                        {{ optional($inscription->formation)->nom ?? '-' }}
-                    @else
-                        {{ optional($inscription->region)->nom ?? '-' }}
-                    @endif
-                </td>
-
-                {{-- <td>{{ number_format($inscription->montant, 0, ',', ' ') }} FCFA</td> --}}
-                {{-- <td>{{ ucfirst($inscription->status) }}</td> --}}
             </tr>
         @endforeach
     </tbody>

@@ -1,133 +1,75 @@
-@extends('layouts.auth')
-@section('title', 'Connexion')
+@extends('layouts.app')
+@section('title', 'Confirmer le mot de passe')
+
 @section('content')
-<style>
-    body {
-        background: linear-gradient(135deg, #1d3557, #457b9d, #a8dadc);
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: 'Poppins', sans-serif;
-        margin: 0;
-    }
 
-    .confirm-wrapper {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        min-height: 100vh;
-    }
+@include('layouts.inc.frontend.breadcrumb', [
+    'pageTitle'   => 'Confirmation',
+    'breadcrumbs' => [
+        ['label' => 'Confirmer le mot de passe', 'url' => null],
+    ]
+])
 
-    .confirm-card {
-        width: 100%;
-        max-width: 400px;
-        background: #fff;
-        border-radius: 20px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        padding: 2rem;
-        animation: fadeInUp 0.8s ease-in-out;
-    }
+<div class="container py-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
 
-    .confirm-title {
-        font-weight: 700;
-        color: #1d3557;
-        margin-bottom: 1.5rem;
-        text-align: center;
-    }
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white p-4 text-center">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-white bg-opacity-25 rounded-circle mb-3"
+                         style="width:60px;height:60px;">
+                        <i class="fas fa-shield-alt fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold mb-1">Sécurité renforcée</h5>
+                    <small class="opacity-75">Veuillez confirmer votre mot de passe avant de continuer</small>
+                </div>
 
-    .input-group {
-        display: flex;
-        align-items: center;
-        border: 1px solid #ced4da;
-        border-radius: 12px;
-        overflow: hidden;
-        transition: all 0.3s ease;
-        margin-bottom: 1rem;
-    }
+                <div class="card-body p-4 p-md-5">
 
-    .input-group:focus-within {
-        border-color: #1d3557;
-        box-shadow: 0 0 0 3px rgba(69, 123, 157, 0.2);
-    }
+                    @include('layouts.alerte')
 
-    .form-control {
-        border: none;
-        box-shadow: none;
-        padding: 10px 15px;
-        flex: 1;
-    }
+                    <form action="{{ route('password.confirm') }}" method="POST">
+                        @csrf
 
-    .input-group-text {
-        background: transparent;
-        border: none;
-        color: #1d3557;
-        padding-right: 12px;
-        font-size: 1.1rem;
-    }
+                        <!-- Password -->
+                        <div class="mb-4">
+                            <label for="password" class="form-label fw-semibold text-muted small text-uppercase">
+                                Mot de passe <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="fas fa-lock text-primary"></i>
+                                </span>
+                                <input type="password" id="password" name="password"
+                                       class="form-control bg-light border-0 @error('password') is-invalid @enderror"
+                                       required autocomplete="current-password"
+                                       placeholder="••••••••">
+                                @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
 
-    .btn-primary {
-        background: #1d3557;
-        border: none;
-        border-radius: 12px;
-        transition: all 0.3s ease;
-        width: 100%;
-        padding: 10px;
-    }
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold">
+                            <i class="fas fa-check-circle me-2"></i> Confirmer
+                        </button>
 
-    .btn-primary:hover {
-        background: #457b9d;
-        transform: translateY(-2px);
-    }
+                        @if (Route::has('password.request'))
+                            <div class="text-center mt-4 pt-3 border-top">
+                                <a href="{{ route('password.request') }}" class="small text-primary text-decoration-none fw-bold">
+                                    <i class="fas fa-question-circle me-1"></i> Mot de passe oublié ?
+                                </a>
+                            </div>
+                        @endif
 
-    .text-center a {
-        color: #1d3557;
-        text-decoration: none;
-        font-weight: 600;
-    }
+                    </form>
 
-    .text-center a:hover {
-        color: #457b9d;
-        text-decoration: underline;
-    }
-
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(40px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-</style>
-
-<div class="confirm-wrapper">
-    <div class="confirm-card">
-        <h3 class="confirm-title">Confirmer le mot de passe</h3>
-        <p class="text-muted text-center mb-3">
-            Veuillez confirmer votre mot de passe avant de continuer.
-        </p>
-
-        @include('layouts.alerte')
-
-        <form method="POST" action="{{ route('password.confirm') }}">
-            @csrf
-
-            <div class="input-group">
-                <input id="password" type="password"
-                       class="form-control @error('password') is-invalid @enderror"
-                       name="password" required autocomplete="current-password" placeholder="Entrez votre mot de passe">
-                <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                @error('password')
-                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                @enderror
+                </div>
             </div>
 
-            <button type="submit" class="btn btn-primary">Confirmer le mot de passe</button>
-        </form>
-
-        <div class="text-center mt-3">
-            @if (Route::has('password.request'))
-                <a href="{{ route('password.request') }}">Mot de passe oublié ?</a>
-            @endif
         </div>
     </div>
 </div>
+
 @endsection

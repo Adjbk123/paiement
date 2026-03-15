@@ -1,159 +1,101 @@
-@extends('layouts.auth')
-@section('title', 'Connexion')
+@extends('layouts.app')
+@section('title', 'Réinitialiser le mot de passe')
+
 @section('content')
-<style>
-    body {
-        background: linear-gradient(135deg, #1d3557, #457b9d, #a8dadc);
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: 'Poppins', sans-serif;
-        margin: 0;
-    }
 
-    .reset-wrapper {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        min-height: 100vh;
-    }
+@include('layouts.inc.frontend.breadcrumb', [
+    'pageTitle'   => 'Réinitialisation',
+    'breadcrumbs' => [
+        ['label' => 'Réinitialiser le mot de passe', 'url' => null],
+    ]
+])
 
-    .reset-card {
-        width: 100%;
-        max-width: 400px;
-        background: #fff;
-        border-radius: 20px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        padding: 2rem;
-        animation: fadeInUp 0.8s ease-in-out;
-    }
+<div class="container py-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
 
-    .reset-title {
-        font-weight: 700;
-        color: #1d3557;
-        margin-bottom: 1.5rem;
-        text-align: center;
-    }
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white p-4 text-center">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-white bg-opacity-25 rounded-circle mb-3"
+                         style="width:60px;height:60px;">
+                        <i class="fas fa-unlock-alt fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold mb-1">Nouveau mot de passe</h5>
+                    <small class="opacity-75">Veuillez saisir votre nouveau mot de passe</small>
+                </div>
 
-    .input-group {
-        display: flex;
-        align-items: center;
-        border: 1px solid #ced4da;
-        border-radius: 12px;
-        overflow: hidden;
-        transition: all 0.3s ease;
-    }
+                <div class="card-body p-4 p-md-5">
 
-    .input-group:focus-within {
-        border-color: #1d3557;
-        box-shadow: 0 0 0 3px rgba(69, 123, 157, 0.2);
-    }
+                    @include('layouts.alerte')
 
-    .form-control {
-        border: none;
-        box-shadow: none;
-        padding: 10px 15px;
-        flex: 1;
-    }
+                    <form method="POST" action="{{ route('password.update') }}">
+                        @csrf
+                        <input type="hidden" name="token" value="{{ $token }}">
 
-    .input-group-text {
-        background: transparent;
-        border: none;
-        color: #1d3557;
-        padding-right: 12px;
-        font-size: 1.1rem;
-    }
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-semibold text-muted small text-uppercase">
+                                Adresse e-mail <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="fas fa-envelope text-primary"></i>
+                                </span>
+                                <input id="email" type="email"
+                                       class="form-control bg-light border-0 @error('email') is-invalid @enderror"
+                                       name="email" value="{{ $email ?? old('email') }}"
+                                       required autocomplete="email" autofocus>
+                                @error('email')
+                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                @enderror
+                            </div>
+                        </div>
 
-    .btn-primary {
-        background: #1d3557;
-        border: none;
-        border-radius: 12px;
-        transition: all 0.3s ease;
-    }
+                        <!-- Nouveau mot de passe -->
+                        <div class="mb-3">
+                            <label for="password" class="form-label fw-semibold text-muted small text-uppercase">
+                                Nouveau mot de passe <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="fas fa-lock text-primary"></i>
+                                </span>
+                                <input id="password" type="password"
+                                       class="form-control bg-light border-0 @error('password') is-invalid @enderror"
+                                       name="password" required autocomplete="new-password">
+                                @error('password')
+                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                @enderror
+                            </div>
+                        </div>
 
-    .btn-primary:hover {
-        background: #457b9d;
-        transform: translateY(-2px);
-    }
+                        <!-- Confirmation -->
+                        <div class="mb-4">
+                            <label for="password-confirm" class="form-label fw-semibold text-muted small text-uppercase">
+                                Confirmez le mot de passe <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="fas fa-check-circle text-primary"></i>
+                                </span>
+                                <input id="password-confirm" type="password"
+                                       class="form-control bg-light border-0"
+                                       name="password_confirmation" required autocomplete="new-password">
+                            </div>
+                        </div>
 
-    .text-muted {
-        font-size: 0.95rem;
-        text-align: center;
-        margin-bottom: 1rem;
-    }
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold">
+                            <i class="fas fa-save me-2"></i> Réinitialiser
+                        </button>
 
-    .form-check-label a {
-        color: #1d3557;
-        text-decoration: none;
-        font-weight: 600;
-    }
+                    </form>
 
-    .form-check-label a:hover {
-        color: #457b9d;
-        text-decoration: underline;
-    }
-
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(40px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-</style>
-
-<div class="reset-wrapper">
-    <div class="reset-card">
-        <h3 class="reset-title">Réinitialiser le mot de passe</h3>
-        <p class="text-muted">Entrez votre email et votre nouveau mot de passe.</p>
-
-        @include('layouts.alerte')
-
-        <form method="POST" action="{{ route('password.update') }}">
-            @csrf
-            <input type="hidden" name="token" value="{{ $token }}">
-
-            <!-- Email -->
-            <div class="mb-3">
-                <label for="email" class="form-label fw-semibold">Adresse e-mail</label>
-                <div class="input-group">
-                    <input id="email" type="email" class="form-control @error('email') is-invalid @enderror"
-                           name="email" value="{{ $email ?? old('email') }}" required autocomplete="email" autofocus>
-                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                    @error('email')
-                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                    @enderror
                 </div>
             </div>
 
-            <!-- Nouveau mot de passe -->
-            <div class="mb-3">
-                <label for="password" class="form-label fw-semibold">Nouveau mot de passe</label>
-                <div class="input-group">
-                    <input id="password" type="password" class="form-control @error('password') is-invalid @enderror"
-                           name="password" required autocomplete="new-password">
-                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                    @error('password')
-                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                    @enderror
-                </div>
-            </div>
-
-            <!-- Confirmation -->
-            <div class="mb-3">
-                <label for="password-confirm" class="form-label fw-semibold">Confirmez le mot de passe</label>
-                <div class="input-group">
-                    <input id="password-confirm" type="password" class="form-control"
-                           name="password_confirmation" required autocomplete="new-password">
-                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                </div>
-            </div>
-
-            <button type="submit" class="btn btn-primary w-100 py-2 mt-2">Réinitialiser le mot de passe</button>
-        </form>
-
-        <div class="text-center mt-3">
-            <a href="{{ route('login') }}">← Retour à la connexion</a>
         </div>
     </div>
 </div>
+
 @endsection
