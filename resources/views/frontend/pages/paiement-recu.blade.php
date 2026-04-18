@@ -14,7 +14,7 @@ body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 13px; color: #1a1
 .header-wrap { padding: 24px 32px 18px; border-bottom: 1px solid #e2e8f0; }
 .header-table { width: 100%; }
 .logo-cell { width: 80px; vertical-align: middle; }
-.logo-cell img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; }
+.logo-cell img { width: 72px; border-radius: 0; object-fit: contain; }
 .brand-cell { vertical-align: middle; padding-left: 14px; }
 .brand-name { font-size: 18px; font-weight: bold; color: #1e3a8a; letter-spacing: .5px; }
 .brand-sub { font-size: 11px; color: #64748b; margin-top: 2px; }
