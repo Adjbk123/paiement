@@ -190,6 +190,7 @@
                 <div class="d-flex align-items-center gap-2">
                     <label class="small fw-bold text-muted mb-0">Afficher</label>
                     <select id="perPageSelect" class="form-select form-select-sm border-0 shadow-sm rounded-3" style="width: 80px;">
+                        <option value="10"  {{ request('per_page', 10) == '10'  ? 'selected' : '' }}>10</option>
                         <option value="15"  {{ request('per_page') == '15'  ? 'selected' : '' }}>15</option>
                         <option value="25"  {{ request('per_page') == '25'  ? 'selected' : '' }}>25</option>
                         <option value="50"  {{ request('per_page') == '50'  ? 'selected' : '' }}>50</option>

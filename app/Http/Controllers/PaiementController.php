@@ -72,7 +72,7 @@ class PaiementController extends Controller
             });
         }
 
-        $perPage = $request->get('per_page', 15);
+        $perPage = $request->get('per_page', 10);
         $inscriptions = $query->latest()->paginate($perPage);
 
         $stats = PaiementInscription::selectRaw("status, count(*) as total")
