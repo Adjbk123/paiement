@@ -49,8 +49,12 @@ class PaiementController extends Controller
             $query->where('option_id', $request->option);
         }
 
-        if ($request->date_paiement) {
-            $query->whereDate('created_at', $request->date_paiement);
+        if ($request->date_debut) {
+            $query->whereDate('created_at', '>=', $request->date_debut);
+        }
+
+        if ($request->date_fin) {
+            $query->whereDate('created_at', '<=', $request->date_fin);
         }
 
         if ($request->status) {
@@ -68,7 +72,8 @@ class PaiementController extends Controller
             });
         }
 
-        $inscriptions = $query->latest()->paginate(15);
+        $perPage = $request->get('per_page', 15);
+        $inscriptions = $query->latest()->paginate($perPage);
 
         $stats = PaiementInscription::selectRaw("status, count(*) as total")
             ->groupBy('status')
@@ -191,14 +196,18 @@ public function destroySelected(Request $request)
         if ($request->formation) { $query->where('formation_id',$request->formation);}
         if ($request->region) { $query->where('region_id',$request->region);}
         if ($request->option) { $query->where('option_id',$request->option);}
-        if ($request->date_paiement) { $query->whereDate('created_at',$request->date_paiement);}
+        if ($request->date_debut) { $query->whereDate('created_at', '>=', $request->date_debut); }
+        if ($request->date_fin) { $query->whereDate('created_at', '<=', $request->date_fin); }
 
         $inscriptions = $query->latest()->get();
         $totalMontant = $inscriptions->sum('montant');
 
-        $pdf = Pdf::loadView('inscriptions.pdf', compact('inscriptions','totalMontant'));
+        $pdf = Pdf::loadView('inscriptions.pdf', compact('inscriptions','totalMontant'))
+            ->setPaper('A4', 'landscape');
+
         $filename = 'liste_inscriptions';
-        if($request->date_paiement) { $filename .= '_'.$request->date_paiement; }
+        if($request->date_debut) { $filename .= '_du_'.$request->date_debut; }
+        if($request->date_fin) { $filename .= '_au_'.$request->date_fin; }
         $filename .= '.pdf';
 
         return $pdf->download($filename);

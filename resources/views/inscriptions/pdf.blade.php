@@ -36,11 +36,12 @@
     <thead>
         <tr>
             <th>#</th>
-            <th>Nom</th>
+            <th>Nom & Prénoms</th>
             <th>Enseignement</th>
             <th>Option</th>
             <th>Formation (CS)</th>
             <th>Commune (Région)</th>
+            <th>Montant</th>
             <th>Statut</th>
         </tr>
     </thead>
@@ -70,6 +71,11 @@
 
                 {{-- Commune (Région) --}}
                 <td>{{ optional($inscription->region)->nom ?? '-' }}</td>
+
+                {{-- Montant --}}
+                <td style="text-align: right; font-weight: bold;">
+                    {{ number_format($inscription->totalPaye(), 0, ',', ' ') }}
+                </td>
 
                 {{-- Statut --}}
                 <td>

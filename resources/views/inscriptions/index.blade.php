@@ -160,9 +160,14 @@
                             </select>
                         </div>
                         <div class="col-md-3 mb-2 mt-lg-2">
-                            <label class="d-block small fw-bold text-muted mb-1">Date de Paiement</label>
-                            <input type="date" name="date_paiement" class="form-control form-control-sm border-0 shadow-sm rounded-3 text-muted"
-                                   value="{{ request('date_paiement') }}">
+                            <label class="d-block small fw-bold text-muted mb-1">Date Début</label>
+                            <input type="date" name="date_debut" class="form-control form-control-sm border-0 shadow-sm rounded-3 text-muted"
+                                   value="{{ request('date_debut') }}">
+                        </div>
+                        <div class="col-md-3 mb-2 mt-lg-2">
+                            <label class="d-block small fw-bold text-muted mb-1">Date Fin</label>
+                            <input type="date" name="date_fin" class="form-control form-control-sm border-0 shadow-sm rounded-3 text-muted"
+                                   value="{{ request('date_fin') }}">
                         </div>
                         <div class="col-md-3 mt-lg-3 d-flex gap-2 align-items-end justify-content-end">
                             <a href="{{ route('administrateur.gestinscriptions.inscriptions.index') }}"
@@ -178,6 +183,21 @@
             </div>
 
             {{-- ===== TABLEAU ===== --}}
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="text-muted small">
+                    Affichage de <b>{{ $inscriptions->firstItem() }}</b> à <b>{{ $inscriptions->lastItem() }}</b> sur <b>{{ $inscriptions->total() }}</b> inscriptions
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <label class="small fw-bold text-muted mb-0">Afficher</label>
+                    <select id="perPageSelect" class="form-select form-select-sm border-0 shadow-sm rounded-3" style="width: 80px;">
+                        <option value="15"  {{ request('per_page') == '15'  ? 'selected' : '' }}>15</option>
+                        <option value="25"  {{ request('per_page') == '25'  ? 'selected' : '' }}>25</option>
+                        <option value="50"  {{ request('per_page') == '50'  ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0" style="font-size:.88rem;">
                     <thead class="table-light">
@@ -339,6 +359,14 @@ document.getElementById('deleteSelectedBtn').addEventListener('click', function 
             document.getElementById('deleteSelectedForm').submit();
         }
     });
+});
+
+// Auto-submit per_page
+document.getElementById('perPageSelect').addEventListener('change', function () {
+    const url = new URL(window.location.href);
+    url.searchParams.set('per_page', this.value);
+    url.searchParams.set('page', 1); // Reset to page 1
+    window.location.href = url.toString();
 });
 
 @if(session('success'))
