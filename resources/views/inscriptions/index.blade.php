@@ -88,7 +88,7 @@
                    class="btn btn-sm btn-success rounded-pill px-4">
                     <i class="fas fa-file-excel me-2"></i> Excel
                 </a>
-                <button type="button" class="btn btn-sm btn-dark rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#comptableModal">
+                <button type="button" class="btn btn-sm btn-dark rounded-pill px-4" data-toggle="modal" data-target="#comptableModal">
                     <i class="fas fa-file-invoice-dollar me-2"></i> Point Comptable
                 </button>
                 <button type="button" class="btn btn-sm btn-warning rounded-pill px-4" id="deleteSelectedBtn">
@@ -331,7 +331,9 @@
                 <h5 class="modal-title fw-bold" id="comptableModalLabel">
                     <i class="fas fa-file-invoice-dollar text-primary me-2"></i> Point Comptable
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <form action="{{ route('administrateur.gestinscriptions.inscriptions.export.comptable') }}" method="GET" target="_blank">
                 <div class="modal-body p-4">
@@ -351,7 +353,7 @@
                     </div>
                 </div>
                 <div class="modal-footer border-0 pt-0 p-4">
-                    <button type="button" class="btn btn-light rounded-pill px-4 fw-semibold" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-light rounded-pill px-4 fw-semibold" data-dismiss="modal">Annuler</button>
                     <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">
                         <i class="fas fa-download me-2"></i> Générer le PDF
                     </button>
