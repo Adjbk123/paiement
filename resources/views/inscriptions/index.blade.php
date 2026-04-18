@@ -88,6 +88,9 @@
                    class="btn btn-sm btn-success rounded-pill px-4">
                     <i class="fas fa-file-excel me-2"></i> Excel
                 </a>
+                <button type="button" class="btn btn-sm btn-dark rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#comptableModal">
+                    <i class="fas fa-file-invoice-dollar me-2"></i> Point Comptable
+                </button>
                 <button type="button" class="btn btn-sm btn-warning rounded-pill px-4" id="deleteSelectedBtn">
                     <i class="fas fa-trash me-2"></i> Supprimer sélectionnées
                 </button>
@@ -319,6 +322,44 @@
     @method('DELETE')
     <div id="selectedIdsContainer"></div>
 </form>
+
+{{-- ===== MODAL POINT COMPTABLE ===== --}}
+<div class="modal fade" id="comptableModal" tabindex="-1" aria-labelledby="comptableModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0 px-4 pt-4">
+                <h5 class="modal-title fw-bold" id="comptableModalLabel">
+                    <i class="fas fa-file-invoice-dollar text-primary me-2"></i> Point Comptable
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('administrateur.gestinscriptions.inscriptions.export.comptable') }}" method="GET" target="_blank">
+                <div class="modal-body p-4">
+                    <p class="text-muted small mb-4">Sélectionnez la période pour générer le récapitulatif comptable.</p>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="small fw-bold text-muted mb-1">Date Début</label>
+                            <input type="date" name="date_debut" class="form-control rounded-3 border-light shadow-sm" 
+                                   value="{{ date('Y-m-d') }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small fw-bold text-muted mb-1">Date Fin</label>
+                            <input type="date" name="date_fin" class="form-control rounded-3 border-light shadow-sm" 
+                                   value="{{ date('Y-m-d') }}" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0 p-4">
+                    <button type="button" class="btn btn-light rounded-pill px-4 fw-semibold" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">
+                        <i class="fas fa-download me-2"></i> Générer le PDF
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 @endsection
 

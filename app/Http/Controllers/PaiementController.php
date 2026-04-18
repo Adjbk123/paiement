@@ -213,6 +213,44 @@ public function destroySelected(Request $request)
         return $pdf->download($filename);
     }
 
+    // ================= EXPORT POINT COMPTABLE =================
+    public function exportComptablePdf(Request $request)
+    {
+        $dateDebut = $request->get('date_debut', date('Y-m-d'));
+        $dateFin   = $request->get('date_fin', date('Y-m-d'));
+
+        $query = PaiementInscription::with(['enseignement', 'option', 'formation', 'region'])
+            ->whereDate('created_at', '>=', $dateDebut)
+            ->whereDate('created_at', '<=', $dateFin)
+            ->whereIn('status', ['approved', 'partiel']);
+
+        $inscriptions = $query->latest()->get();
+        $totalMontant = $inscriptions->sum('montant');
+        $parametres   = Parametre::first();
+
+        // Statistiques par enseignement pour le point comptable
+        $statsEnseignement = $inscriptions->groupBy(function($item) {
+            return $item->enseignement?->nom ?? ($item->autre_enseignement ?? 'Autre');
+        })->map(function($group) {
+            return [
+                'count' => $group->count(),
+                'total' => $group->sum('montant')
+            ];
+        });
+
+        $pdf = Pdf::loadView('inscriptions.comptable_pdf', compact(
+            'inscriptions',
+            'totalMontant',
+            'dateDebut',
+            'dateFin',
+            'parametres',
+            'statsEnseignement'
+        ))->setPaper('A4', 'portrait');
+
+        $filename = 'point_comptable_'.$dateDebut.'_au_'.$dateFin.'.pdf';
+        return $pdf->download($filename);
+    }
+
     // ================= EXPORT SINGLE PDF =================
     public function exportSinglePdf($id)
     {

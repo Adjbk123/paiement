@@ -126,6 +126,7 @@ Route::group([
         // Liste et actions existantes
         Route::get('/', [PaiementController::class, 'index'])->name('inscriptions.index');
         Route::get('/export/pdf', [PaiementController::class, 'exportPdf'])->name('inscriptions.export.pdf');
+        Route::get('/export/comptable', [PaiementController::class, 'exportComptablePdf'])->name('inscriptions.export.comptable');
         Route::get('/export/excel', [PaiementController::class, 'exportExcel'])->name('inscriptions.export.excel');
         Route::get('/export/csv', [PaiementController::class, 'exportCsv'])->name('inscriptions.export.all.csv');
         Route::get('/{id}/pdf', [PaiementController::class, 'exportSinglePdf'])->name('inscriptions.export.single.pdf');
