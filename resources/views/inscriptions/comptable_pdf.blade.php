@@ -9,7 +9,7 @@
         th, td { border: 1px solid #ccc; padding: 6px; text-align: left; }
         th { background-color: #f8f9fa; font-weight: bold; }
         .header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid #444; padding-bottom: 10px; }
-        .logo { width: 80px; margin-bottom: 10px; }
+        .logo { width: 80px; margin-bottom: 10px; border-radius: 0; }
         .title { font-size: 18px; font-weight: bold; text-transform: uppercase; margin: 5px 0; }
         .subtitle { font-size: 13px; color: #666; }
         .summary-card { background: #fdfdfd; padding: 10px; border: 1px solid #ddd; margin-bottom: 20px; }

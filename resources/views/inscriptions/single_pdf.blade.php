@@ -34,6 +34,7 @@ margin-bottom:20px;
 .header img{
 max-height:70px;
 margin-bottom:10px;
+border-radius: 0;
 }
 
 .header h2{

@@ -11,7 +11,7 @@
         th { background-color: #f2f2f2; }
         h2, h3 { text-align: center; margin: 0; }
         .header { margin-bottom: 20px; text-align: center; } /* Centrer le contenu de l'en-tête */
-        .logo { width: 100px; display: block; margin: 0 auto 10px; } /* Centrer l'image */
+        .logo { width: 100px; display: block; margin: 0 auto 10px; border-radius: 0; overflow: visible; } /* Centrer l'image sans cercle */
         .date { text-align: right; font-size: 10px; margin-top: 5px; }
         .total { margin-top: 15px; font-weight: bold; }
         .footer { text-align: center; font-size: 10px; margin-top: 30px; }
