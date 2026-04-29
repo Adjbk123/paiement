@@ -176,7 +176,7 @@ public function destroySelected(Request $request)
     public function exportPdf(Request $request)
     {
         $query = PaiementInscription::with([
-            'enseignement','circonscription','formation','region','province','option'
+            'enseignement','circonscription','formation','region','province','option','tranches'
         ]);
 
         if ($request->status) {
@@ -200,9 +200,10 @@ public function destroySelected(Request $request)
         if ($request->date_fin) { $query->whereDate('created_at', '<=', $request->date_fin); }
 
         $inscriptions = $query->latest()->get();
-        $totalMontant = $inscriptions->sum('montant');
+        $totalMontant = $inscriptions->sum(fn($i) => $i->totalPaye());
+        $parametres   = Parametre::first();
 
-        $pdf = Pdf::loadView('inscriptions.pdf', compact('inscriptions','totalMontant'))
+        $pdf = Pdf::loadView('inscriptions.pdf', compact('inscriptions', 'totalMontant', 'parametres'))
             ->setPaper('A4', 'landscape');
 
         $filename = 'liste_inscriptions';
@@ -219,13 +220,13 @@ public function destroySelected(Request $request)
         $dateDebut = $request->get('date_debut', date('Y-m-d'));
         $dateFin   = $request->get('date_fin', date('Y-m-d'));
 
-        $query = PaiementInscription::with(['enseignement', 'option', 'formation', 'region'])
+        $query = PaiementInscription::with(['enseignement', 'option', 'formation', 'region', 'tranches'])
             ->whereDate('created_at', '>=', $dateDebut)
             ->whereDate('created_at', '<=', $dateFin)
             ->whereIn('status', ['approved', 'partiel']);
 
         $inscriptions = $query->latest()->get();
-        $totalMontant = $inscriptions->sum('montant');
+        $totalMontant = $inscriptions->sum(fn($i) => $i->totalPaye());
         $parametres   = Parametre::first();
 
         // Statistiques par enseignement pour le point comptable
@@ -234,7 +235,7 @@ public function destroySelected(Request $request)
         })->map(function($group) {
             return [
                 'count' => $group->count(),
-                'total' => $group->sum('montant')
+                'total' => $group->sum(fn($i) => $i->totalPaye())
             ];
         });
 

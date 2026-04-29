@@ -102,6 +102,12 @@ class PaiementInscription extends Model
 
     public function totalPaye(): float
     {
+        if ($this->relationLoaded('tranches')) {
+            return (float) $this->tranches
+                ->where('status', 'approved')
+                ->sum('montant_tranche');
+        }
+
         return (float) $this->tranches()
             ->where('status', 'approved')
             ->sum('montant_tranche');
